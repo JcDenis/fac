@@ -3,8 +3,7 @@
 #
 # This file is part of fac, a plugin for Dotclear 2.
 # 
-# Copyright (c) 2009-2013 Jean-Christian Denis and contributors
-# contact@jcdenis.fr http://jcd.lv
+# Copyright (c) 2009-2021 Jean-Christian Denis and contributors
 # 
 # Licensed under the GPL version 2.0 license.
 # A copy of this license is available in LICENSE file or at
@@ -13,25 +12,19 @@
 # -- END LICENSE BLOCK ------------------------------------
 
 if (!defined('DC_RC_PATH')) {
-
-	return null;
+    return null;
 }
 
 $this->registerModule(
-	/* Name */
-	"fac",
-	/* Description*/
-	"Add RSS/Atom feeds after entries content",
-	/* Author */
-	"Jean-Christian Denis",
-	/* Version */
-	'0.7',
-	/* Properies */
-	array(
-		'permissions' => 'usage,contentadmin',
-		'type' => 'plugin',
-		'dc_min' => '2.6',
-		'support' => 'http://jcd.lv/q=fac',
-		'details' => 'http://plugins.dotaddict.org/dc2/details/fac'
-	)
+    'fac',
+    'Add RSS/Atom feeds after entries content',
+    'Jean-Christian Denis and Contributors',
+    '0.8',
+    [
+        'permissions' => 'usage,contentadmin',
+        'type' => 'plugin',
+        'dc_min' => '2.18',
+        'support'       => 'https://github.com/JcDenis/fac',
+        'details'       => 'https://plugins.dotaddict.org/dc2/details/fac'
+    ]
 );

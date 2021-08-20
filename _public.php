@@ -3,8 +3,7 @@
 #
 # This file is part of fac, a plugin for Dotclear 2.
 # 
-# Copyright (c) 2009-2013 Jean-Christian Denis and contributors
-# contact@jcdenis.fr http://jcd.lv
+# Copyright (c) 2009-2021 Jean-Christian Denis and contributors
 # 
 # Licensed under the GPL version 2.0 license.
 # A copy of this license is available in LICENSE file or at
@@ -13,13 +12,12 @@
 # -- END LICENSE BLOCK ------------------------------------
 
 if (!defined('DC_RC_PATH')) {
-
-	return null;
+    return null;
 }
 
 $core->addBehavior(
-	'publicEntryAfterContent',
-	array('facPublic', 'publicEntryAfterContent')
+    'publicEntryAfterContent',
+    array('facPublic', 'publicEntryAfterContent')
 );
 
 /**
@@ -29,237 +27,226 @@ $core->addBehavior(
  */
 class facPublic
 {
-	/**
-	 * Add feed after entry
-	 * 
-	 * @param  dcCore $core dcCore instance
-	 * @param  context $_ctx context instance
-	 */
-	public static function publicEntryAfterContent(dcCore $core, context $_ctx)
-	{
-		$core->blog->settings->addNamespace('fac');
+    /**
+     * Add feed after entry
+     * 
+     * @param  dcCore $core dcCore instance
+     * @param  context $_ctx context instance
+     */
+    public static function publicEntryAfterContent(dcCore $core, context $_ctx)
+    {
+        $core->blog->settings->addNamespace('fac');
 
-		# Not active or not a post
-		if (!$core->blog->settings->fac->fac_active
-		 || !$_ctx->exists('posts')
-		) {
-			return null;
-		}
+        # Not active or not a post
+        if (!$core->blog->settings->fac->fac_active
+         || !$_ctx->exists('posts')) {
+            return null;
+        }
 
-		# Not in page to show
-		$types = @unserialize($core->blog->settings->fac->fac_public_tpltypes);
-		if (!is_array($types)
-		 || !in_array($core->url->type,$types)
-		) {
-			return null;
-		}
+        # Not in page to show
+        $types = @unserialize($core->blog->settings->fac->fac_public_tpltypes);
+        if (!is_array($types)
+         || !in_array($core->url->type,$types)) {
+            return null;
+        }
 
-		# Get related feed
-		$fac_url = $core->meta->getMetadata(array(
-			'meta_type'	=> 'fac',
-			'post_id'		=> $_ctx->posts->post_id,
-			'limit'		=> 1
-		));
-		if ($fac_url->isEmpty()) {
+        # Get related feed
+        $fac_url = $core->meta->getMetadata([
+            'meta_type' => 'fac',
+            'post_id' => $_ctx->posts->post_id,
+            'limit' => 1
+        ]);
+        if ($fac_url->isEmpty()) {
+            return null;
+        }
 
-			return null;
-		}
+        # Get related format
+        $fac_format = $core->meta->getMetadata([
+            'meta_type' => 'facformat',
+            'post_id' => $_ctx->posts->post_id,
+            'limit' => 1
+        ]);
+        if ($fac_format->isEmpty()) {
+            return null;
+        }
 
-		# Get related format
-		$fac_format = $core->meta->getMetadata(array(
-			'meta_type'	=> 'facformat',
-			'post_id'		=> $_ctx->posts->post_id,
-			'limit'		=> 1
-		));
-		if ($fac_format->isEmpty()) {
+        # Get format info
+        $default_format = array(
+            'name' => 'default',
+            'dateformat' => '',
+            'lineslimit' => '5',
+            'linestitletext' => '%T',
+            'linestitleover' => '%D',
+            'linestitlelength' => '150',
+            'showlinesdescription' => '0',
+            'linesdescriptionlength' => '350',
+            'linesdescriptionnohtml' => '1',
+            'showlinescontent' => '0',
+            'linescontentlength' => '350',
+            'linescontentnohtml' => '1'
+        );
 
-			return null;
-		}
+        $formats = @unserialize($core->blog->settings->fac->fac_formats);
+        if (empty($formats)
+         || !is_array($formats)
+         || !isset($formats[$fac_format->meta_id])) {
+            $format = $default_format;
+        } else {
+            $format = array_merge(
+                $default_format,
+                $formats[$fac_format->meta_id]
+            );
+        }
 
-		# Get format info
-		$default_format = array(
-			'name' => 'default',
-			'dateformat' => '',
-			'lineslimit' => '5',
-			'linestitletext' => '%T',
-			'linestitleover' => '%D',
-			'linestitlelength' => '150',
-			'showlinesdescription' => '0',
-			'linesdescriptionlength' => '350',
-			'linesdescriptionnohtml' => '1',
-			'showlinescontent' => '0',
-			'linescontentlength' => '350',
-			'linescontentnohtml' => '1'
-		);
+        # Read feed url
+        $cache = is_dir(DC_TPL_CACHE . '/fac') ? DC_TPL_CACHE . '/fac' : null;
+        try {
+            $feed = feedReader::quickParse($fac_url->meta_id, $cache);
+        } catch (Exception $e) {
+            $feed = null;
+        }
 
-		$formats = @unserialize($core->blog->settings->fac->fac_formats);
-		if (empty($formats)
-		 || !is_array($formats)
-		 || !isset($formats[$fac_format->meta_id])
-		) {
-			$format = $default_format;
-		}
-		else {
-			$format = array_merge(
-				$default_format,
-				$formats[$fac_format->meta_id]
-			);
-		}
+        # No entries
+        if (!$feed) {
+            return null;
+        }
 
-		# Read feed url
-		$cache = is_dir(DC_TPL_CACHE.'/fac') ? DC_TPL_CACHE.'/fac' : null;
-		try {
-			$feed = feedReader::quickParse($fac_url->meta_id,$cache);
-		}
-		catch (Exception $e) {
-			$feed = null;
-		}
+        # Feed title
+        $feedtitle = '';
+        if ('' != $core->blog->settings->fac->fac_defaultfeedtitle) {
+            $feedtitle = '<h3>' . html::escapeHTML(empty($feed->title) ? 
+                str_replace(
+                    '%T',
+                    __('a related feed'),
+                    $core->blog->settings->fac->fac_defaultfeedtitle
+                ) : 
+                str_replace(
+                    '%T',
+                    $feed->title,
+                    $core->blog->settings->fac->fac_defaultfeedtitle
+                )
+            ) . '</h3>';
+        }
 
-		# No entries
-		if (!$feed) {
+        # Feed desc
+        $feeddesc = '';
+        if ($core->blog->settings->fac->fac_showfeeddesc 
+         && '' != $feed->description) {
+            $feeddesc = 
+            '<p>' . context::global_filter($feed->description, 1, 1, 0, 0, 0) . '</p>';
+        }
 
-			return null;
-		}
+        # Date format
+        $dateformat = '' != $format['dateformat'] ? 
+            $format['dateformat'] :
+            $core->blog->settings->system->date_format . ',' . $core->blog->settings->system->time_format;
 
-		# Feed title
-		$feedtitle = '';
-		if ('' != $core->blog->settings->fac->fac_defaultfeedtitle) {
-			$feedtitle = '<h3>'.html::escapeHTML(empty($feed->title) ? 
-				str_replace(
-					'%T',
-					__('a related feed'),
-					$core->blog->settings->fac->fac_defaultfeedtitle
-				) : 
-				str_replace(
-					'%T',
-					$feed->title,
-					$core->blog->settings->fac->fac_defaultfeedtitle
-				)
-			).'</h3>';
-		}
+        # Enrties limit
+        $entrieslimit = abs((integer) $format['lineslimit']);
+        $uselimit = $entrieslimit > 0 ? true : false;
 
-		# Feed desc
-		$feeddesc = '';
-		if ($core->blog->settings->fac->fac_showfeeddesc 
-		 && '' != $feed->description
-		) {
-			$feeddesc = 
-			'<p>'.context::global_filter($feed->description,1,1,0,0,0).'</p>';
-		}
+        echo 
+        '<div class="post-fac">' .
+        $feedtitle . $feeddesc .
+        '<dl>';
 
-		# Date format
-		$dateformat = '' != $format['dateformat'] ? 
-			$format['dateformat'] :
-			$core->blog->settings->system->date_format.','.$core->blog->settings->system->time_format;
+        $i = 0;
+        foreach ($feed->items as $item) {
 
-		# Enrties limit
-		$entrieslimit = abs((integer) $format['lineslimit']);
-		$uselimit = $entrieslimit > 0 ? true : false;
+            # Format date
+            $date = dt::dt2str($dateformat, $item->pubdate);
 
-		echo 
-		'<div class="post-fac">'.
-		$feedtitle.$feeddesc.
-		'<dl>';
+            # Entries title
+            $title = context::global_filter(
+                str_replace(
+                    array(
+                        '%D',
+                        '%T',
+                        '%A',
+                        '%E',
+                        '%C'
+                    ),
+                    array(
+                        $date,
+                        $item->title,
+                        $item->creator,
+                        $item->description,
+                        $item->content
+                    ),
+                    $format['linestitletext']
+                ),
+                0,
+                1,
+                abs((integer) $format['linestitlelength']),
+                0,
+                0
+            );
 
-		$i = 0;
-		foreach ($feed->items as $item) {
+            # Entries over title
+            $overtitle = context::global_filter(
+                str_replace(
+                    array(
+                        '%D',
+                        '%T',
+                        '%A',
+                        '%E',
+                        '%C'
+                    ),
+                    array(
+                        $date,
+                        $item->title,
+                        $item->creator,
+                        $item->description,
+                        $item->content
+                    ),
+                    $format['linestitleover']
+                ),
+                0,
+                1,
+                350,
+                0,
+                0
+            );
 
-			# Format date
-			$date = dt::dt2str($dateformat, $item->pubdate);
+            # Entries description
+            $description = '';
+            if ($format['showlinesdescription'] 
+             && '' != $item->description) {
+                $description = '<dd>' .
+                context::global_filter(
+                    $item->description,
+                    0,
+                    (integer) $format['linesdescriptionnohtml'],
+                    abs((integer) $format['linesdescriptionlength']),
+                    0,0
+                ) . '</dd>';
+            }
 
-			# Entries title
-			$title = context::global_filter(
-				str_replace(
-					array(
-						'%D',
-						'%T',
-						'%A',
-						'%E',
-						'%C'
-					),
-					array(
-						$date,
-						$item->title,
-						$item->creator,
-						$item->description,
-						$item->content
-					),
-					$format['linestitletext']
-				),
-				0,
-				1,
-				abs((integer) $format['linestitlelength']),
-				0,
-				0
-			);
+            # Entries content
+            $content = '';
+            if ($format['showlinescontent'] 
+             && '' != $item->content) {
+                $content = '<dd>'.
+                context::global_filter(
+                    $item->content,
+                    0,
+                    (integer) $format['linescontentnohtml'],
+                    abs((integer) $format['linescontentlength']),
+                    0,
+                    0
+                ) . '</dd>';
+            }
 
-			# Entries over title
-			$overtitle = context::global_filter(
-				str_replace(
-					array(
-						'%D',
-						'%T',
-						'%A',
-						'%E',
-						'%C'
-					),
-					array(
-						$date,
-						$item->title,
-						$item->creator,
-						$item->description,
-						$item->content
-					),
-					$format['linestitleover']
-				),
-				0,
-				1,
-				350,
-				0,
-				0
-			);
+            echo
+            '<dt><a href="' . $item->link . '" ' .
+            'title="' . $overtitle . '">' . $title . '</a></dt>' .
+            $description . $content;
 
-			# Entries description
-			$description = '';
-			if ($format['showlinesdescription'] 
-			 && '' != $item->description
-			) {
-				$description = '<dd>'.
-				context::global_filter(
-					$item->description,
-					0,
-					(integer) $format['linesdescriptionnohtml'],
-					abs((integer) $format['linesdescriptionlength']),
-					0,0
-				).'</dd>';
-			}
-
-			# Entries content
-			$content = '';
-			if ($format['showlinescontent'] 
-			 && '' != $item->content
-			) {
-				$content = '<dd>'.
-				context::global_filter(
-					$item->content,
-					0,
-					(integer) $format['linescontentnohtml'],
-					abs((integer) $format['linescontentlength']),
-					0,
-					0
-				).'</dd>';
-			}
-			
-			echo
-			'<dt><a href="'.$item->link.'" '.
-			'title="'.$overtitle.'">'.$title.'</a></dt>'.
-			$description.$content;
-			
-			$i++;
-			if ($uselimit && $i == $entrieslimit) {
-				break;
-			}
-		}
-		echo '</dl></div>';
-	}
+            $i++;
+            if ($uselimit && $i == $entrieslimit) {
+                break;
+            }
+        }
+        echo '</dl></div>';
+    }
 }
