@@ -12,15 +12,19 @@ to link en extenal feed to the bottom of an entry.
 
  fac requires: 
 
+  * superadmin to configure feeds formats
   * admin permissions to configure plugin
   * usage,contentadmin permissions to link feeds
-  * Dotclear 2.6 
+  * Dotclear 2.19 
   * A theme that contents behavior publicEntryAfterContent
 
 ## USAGE
 
 First install fac, manualy from a zip package or from 
 Dotaddict repository. (See Dotclear's documentation to know how do this)
+
+Superadmin can configure, add, remove feeds formats on plugins configuration.
+Admin can configure fac activation et selected page where to display feeds.
 
 When you edit a post you have a new sidebar menu called "Linked feed"
 to link a feed to this post.

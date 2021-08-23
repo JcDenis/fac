@@ -16,27 +16,26 @@ if (!defined('DC_CONTEXT_ADMIN')) {
 }
 
 # -- Module specs --
-
-$dc_min = '2.6';
+$dc_min = '2.19';
 $mod_id = 'fac';
-$mod_conf = array(
-    array(
+$mod_conf = [
+    [
         'fac_active',
         'Enabled fac plugin',
         false,
         'boolean'
-    ),
-    array(
+    ],
+    [
         'fac_public_tpltypes',
         'List of templates types which used fac',
-        serialize(array('post', 'tag', 'archive')),
+        serialize(['post', 'tag', 'archive']),
         'string'
-    ),
-    array(
+    ],
+    [
         'fac_formats',
         'Formats of feeds contents',
-        serialize(array(
-            uniqid() => array(
+        serialize([
+            uniqid() => [
                 'name'              => 'default',
                 'dateformat'            => '',
                 'lineslimit'            => '5',
@@ -49,8 +48,8 @@ $mod_conf = array(
                 'showlinescontent'      => '0',
                 'linescontentlength'    => '350',
                 'linescontentnohtml'    => '1'
-            ),
-            uniqid() => array(
+            ],
+            uniqid() => [
                 'name'              => 'full',
                 'dateformat'            => '',
                 'lineslimit'            => '20',
@@ -63,38 +62,35 @@ $mod_conf = array(
                 'showlinescontent'      => '1',
                 'linescontentlength'    => '',
                 'linescontentnohtml'    => '1'
-            )
-        )),
-        'string'
-    ),
-    array(
+            ]
+        ]),
+        'string',
+        false,
+        true
+    ],
+    [
         'fac_defaultfeedtitle',
         'Default title of feed',
         '%T',
         'string'
-    ),
-    array(
+    ],
+    [
         'fac_showfeeddesc',
         'Show description of feed',
         1,
         'boolean'
-    )
-);
+    ]
+];
 
 # -- Nothing to change below --
-
 try {
-
     # Check module version
     if (version_compare(
         $core->getVersion($mod_id),
         $core->plugins->moduleInfo($mod_id, 'version'),
-        '>='
-    )) {
-
+        '>=')) {
         return null;
     }
-
     # Check Dotclear version
     if (!method_exists('dcUtils', 'versionsCompare') 
      || dcUtils::versionsCompare(DC_VERSION, $dc_min, '<', false)) {
@@ -102,7 +98,6 @@ try {
             '%s requires Dotclear %s', $mod_id, $dc_min
         ));
     }
-
     # Set module settings
     $core->blog->settings->addNamespace($mod_id);
     foreach($mod_conf as $v) {
@@ -110,17 +105,13 @@ try {
             $v[0], $v[2], $v[3], $v[1], false, true
         );
     }
-
     # Set module version
     $core->setVersion(
         $mod_id,
         $core->plugins->moduleInfo($mod_id, 'version')
     );
-
     return true;
-}
-catch (Exception $e) {
+} catch (Exception $e) {
     $core->error->add($e->getMessage());
-
     return false;
 }

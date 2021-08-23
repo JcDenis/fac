@@ -1,3 +1,9 @@
+fac 0.9
+ * split superadmin and admin config
+ * move blog settings from plugin config to blog pref
+ * fix help
+ * use php short array code
+
 fac 0.8.1
  * fix context filters
 

@@ -23,7 +23,7 @@ $this->registerModule(
     [
         'permissions' => 'usage,contentadmin',
         'type' => 'plugin',
-        'dc_min' => '2.18',
+        'dc_min' => '2.19',
         'support'       => 'https://github.com/JcDenis/fac',
         'details'       => 'https://plugins.dotaddict.org/dc2/details/fac'
     ]

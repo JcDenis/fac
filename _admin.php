@@ -17,12 +17,9 @@ if (!defined('DC_CONTEXT_ADMIN')) {
 
 $core->blog->settings->addNamespace('fac');
 
-# Not active
-if (!$core->blog->settings->fac->fac_active) {
-    return null;
-}
-
 # Admin behaviors
+$core->addBehavior('adminBlogPreferencesForm', ['facAdmin', 'adminBlogPreferencesForm']);
+$core->addBehavior('adminBeforeBlogSettingsUpdate', ['facAdmin', 'adminBeforeBlogSettingsUpdate']);
 $core->addBehavior('adminPostHeaders', ['facAdmin', 'adminPostHeaders']);
 $core->addBehavior('adminPostFormItems', ['facAdmin', 'adminPostFormItems']);
 $core->addBehavior('adminAfterPostCreate', ['facAdmin', 'adminAfterPostSave']);
@@ -37,6 +34,101 @@ $core->addBehavior('adminPostsActionsPage', ['facAdmin', 'adminPostsActionsPage'
  */
 class facAdmin
 {
+    /**
+     * Get combos of types of supported public pages
+     * 
+     * @param  dcCore $core   dcCore instance
+     * @return array         List of post type and name
+     */
+    public static function getPostsTypes(dcCore $core)
+    {
+        $types = [
+            __('home page')         => 'default',
+            __('post pages')        => 'post',
+            __('tags pages')        => 'tag',
+            __('archives pages')    => 'archive',
+            __('category pages')    => 'category',
+            __('entries feed')      => 'feed'
+        ];
+        if ($core->plugins->moduleExists('muppet')) {
+            foreach(muppet::getPostTypes() as $k => $v) {
+                $types[sprintf(
+                    __('"%s" pages from extension muppet'),
+                    $v['name']
+                )] = $k;
+            }
+        }
+        return $types;
+    }
+
+    /**
+     * Add settings to blog preference
+     * 
+     * @param  dcCore       $core           dcCore instance
+     * @param  dcSettings   $blog_settings  dcSettings instance
+     */
+    public static function adminBlogPreferencesForm(dcCore $core, dcSettings $blog_settings)
+    {
+        echo
+        '<div class="fieldset"><h4 id="fac_params">Feed after content</h4>' .
+        '<p class="form-note">' . 
+        __('To add feed to an entry edit this entry and put in sidebar the url of the feed and select a format.') .
+        '</p>' .
+        '<div class="two-cols">' .
+        '<div class="col">' .
+        '<h5>' . __('Activation') . '</h5>' .
+        '<p><label class="classic">' .
+        form::checkbox('fac_active', '1', (boolean) $blog_settings->fac->fac_active) . 
+        __('Enable "fac" extension') . '</label></p>' .
+        '<p class="form-note">' .
+        __("You can manage related feed to display for each post with a predefined format.") .
+        '</p>' .
+        '<h5>' . __('Feed') . '</h5>' .
+        '<p><label for="fac_defaultfeedtitle">' . __('Default title') . '</label>' .
+        form::field('fac_defaultfeedtitle', 65, 255, (string) $blog_settings->fac->fac_defaultfeedtitle) . '</p>' .
+        '<p class="form-note">' . __('Use %T to insert title of feed.') . '</p>' .
+        '<p><label class="classic" for="fac_showfeeddesc">' .
+        form::checkbox('fac_showfeeddesc', 1, (boolean) $blog_settings->fac->fac_showfeeddesc) .
+        __('Show description of feed') . '</label></p>' .
+        '</div>' .
+        '<div class="col">' .
+        '<h5>' . __('Show feed after content on:') . '</h5>';
+
+        $fac_public_tpltypes = @unserialize($blog_settings->fac->fac_public_tpltypes);
+        if (!is_array($fac_public_tpltypes)) {
+            $fac_public_tpltypes = [];
+        }
+        foreach(self::getPostsTypes($core) as $k => $v) {
+            echo '
+            <p><label class="classic" for="fac_public_tpltypes' . $k . '">' .
+            form::checkbox(
+                ['fac_public_tpltypes[]', 'fac_public_tpltypes' . $k],
+                $v,
+                in_array($v, $fac_public_tpltypes)
+            ) . __($k) . '</label></p>';
+        }
+
+        echo 
+        '</div>' .
+        '</div>' .
+        '<br class="clear" />' . 
+        '</div>';
+
+    }
+
+    /**
+     * Save blog settings
+     * 
+     * @param  dcSettings   $blog_settings  dcSettings instance
+     */
+    public static function adminBeforeBlogSettingsUpdate(dcSettings $blog_settings)
+    {
+        $blog_settings->fac->put('fac_active', !empty($_POST['fac_active']));
+        $blog_settings->fac->put('fac_public_tpltypes', serialize($_POST['fac_public_tpltypes']));
+        $blog_settings->fac->put('fac_defaultfeedtitle', (string) $_POST['fac_defaultfeedtitle']);
+        $blog_settings->fac->put('fac_showfeeddesc', !empty($_POST['fac_showfeeddesc']));
+    }
+
     /**
      * Add javascript (toggle)
      * 
@@ -58,22 +150,26 @@ class facAdmin
     {
         global $core;
 
+        if (!$core->blog->settings->fac->fac_active) {
+            return null;
+        }
+
         # Get existing linked feed
         $fac_url = $fac_format = '';
         if ($post) {
 
-            $rs = $core->meta->getMetadata(array(
+            $rs = $core->meta->getMetadata([
                 'meta_type' => 'fac',
                 'post_id' => $post->post_id,
                 'limit' => 1
-            ));
+            ]);
             $fac_url = $rs->isEmpty() ? '' : $rs->meta_id;
 
-            $rs = $core->meta->getMetadata(array(
+            $rs = $core->meta->getMetadata([
                 'meta_type' => 'facformat',
                 'post_id' => $post->post_id,
                 'limit' => 1
-            ));
+            ]);
             $fac_format = $rs->isEmpty() ? '' : $rs->meta_id;
         }
 
@@ -122,25 +218,21 @@ class facAdmin
      */
     public static function adminPostsActionsPage(dcCore $core, dcPostsActionsPage $pa)
     {
+        if (!$core->blog->settings->fac->fac_active) {
+            return null;
+        }
+
         $pa->addAction(
-            array(
-                __('Linked feed') => array(
-                    __('Add feed') => 'fac_add'
-                )
-            ),
-            array('facAdmin', 'callbackAdd')
+            [__('Linked feed') => [__('Add feed') => 'fac_add']],
+            ['facAdmin', 'callbackAdd']
         );
 
         if (!$core->auth->check('delete,contentadmin', $core->blog->id)) {
             return null;
         }
         $pa->addAction(
-            array(
-                __('Linked feed') => array(
-                    __('Remove feed') => 'fac_remove'
-                )
-            ),
-            array('facAdmin', 'callbackRemove')
+            [__('Linked feed') => [__('Remove feed') => 'fac_remove']],
+            ['facAdmin', 'callbackRemove']
         );
     }
 
@@ -164,7 +256,7 @@ class facAdmin
             throw new Exception(__('No enough right'));
         }
 
-        # Delete expired date
+        # Delete unused feed
         foreach($posts_ids as $post_id) {
             self::delFeed($core, $post_id);
         }
@@ -182,7 +274,7 @@ class facAdmin
      */
     public static function callbackAdd(dcCore $core, dcPostsActionsPage $pa, ArrayObject $post)
     {
-        # No entry
+         # No entry
         $posts_ids = $pa->getIDs();
         if (empty($posts_ids)) {
             throw new Exception(__('No entry selected'));
@@ -202,11 +294,11 @@ class facAdmin
         # Display form
         } else {
             $pa->beginPage(
-                dcPage::breadcrumb(array(
+                dcPage::breadcrumb([
                     html::escapeHTML($core->blog->name) => '',
                     $pa->getCallerTitle() => $pa->getRedirection(true),
                     __('Linked feed to this selection') => '' 
-                ))
+                ])
             );
 
             echo
@@ -218,7 +310,7 @@ class facAdmin
             '<p>' .
             $core->formNonce() .
             $pa->getHiddenFields() .
-            form::hidden(array('action'), 'fac_add') .
+            form::hidden(['action'], 'fac_add') .
             '<input type="submit" value="' . __('Save') . '" /></p>' .
             '</form>';
 
@@ -236,6 +328,10 @@ class facAdmin
      */
     protected static function formFeed(dcCore $core, $url = '', $format = '')
     {
+        if (!$core->blog->settings->fac->fac_active) {
+            return null;
+        }
+
         return 
         '<div id="fac">' . 
         '<h5>' . __('Linked feed') . '</h5>' .
@@ -270,10 +366,10 @@ class facAdmin
     {
         $formats = @unserialize($core->blog->settings->fac->fac_formats);
         if (!is_array($formats) || empty($formats)) {
-            return array();
+            return [];
         }
 
-        $res = array();
+        $res = [];
         foreach($formats as $uid => $f) {
             $res[$f['name']] = $uid;
         }
