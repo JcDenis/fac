@@ -1,3 +1,6 @@
+fac 0.9.1
+ * fix translations
+
 fac 0.9
  * split superadmin and admin config
  * move blog settings from plugin config to blog pref

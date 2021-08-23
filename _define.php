@@ -19,12 +19,12 @@ $this->registerModule(
     'fac',
     'Add RSS/Atom feeds after entries content',
     'Jean-Christian Denis and Contributors',
-    '0.8.1',
+    '0.9.1',
     [
         'permissions' => 'usage,contentadmin',
         'type' => 'plugin',
         'dc_min' => '2.19',
-        'support'       => 'https://github.com/JcDenis/fac',
-        'details'       => 'https://plugins.dotaddict.org/dc2/details/fac'
+        'support' => 'https://github.com/JcDenis/fac',
+        'details' => 'https://plugins.dotaddict.org/dc2/details/fac'
     ]
 );

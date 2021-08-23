@@ -1,236 +1,229 @@
 # Language: Français
-# Module: fac - 0.7
-# Date: 2013-11-11 09:32:36
-# Translated with translater 2013.05.11
+# Module: fac - 0.9.1
+# Date: 2021-08-23 21:01:30
+# Translated with translater 2021.08.18
 
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
-"Project-Id-Version: fac 0.7\n"
+"Project-Id-Version: fac 0.9.1\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2013-11-11T09:32:36+00:00\n"
+"PO-Revision-Date: 2021-08-23T21:01:30+00:00\n"
 "Last-Translator: Jean-Christian Denis\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: _admin.php:149
-#: _admin.php:162
-#: _admin.php:266
-msgid "Linked feed"
-msgstr "Flux lié"
-
-#: _admin.php:150
-msgid "Add feed"
-msgstr "Ajouter un flux"
-
-#: _admin.php:163
-msgid "Remove feed"
-msgstr "Retirer un flux"
-
-#: _admin.php:195
-msgid "Linked feed deleted."
-msgstr "Flux lié effacé."
-
-#: _admin.php:223
-msgid "Linked feed added."
-msgstr "Flux lié ajouté."
-
-#: _admin.php:233
-msgid "Linked feed to this selection"
-msgstr "Lié un flux a cette selection"
-
-#: _admin.php:277
-msgid "Format:"
-msgstr "Format :"
-
-#: _admin.php:284
-msgid "view feed"
-msgstr "Voir le flux"
-
-#: _config.php:25
+#: _admin.php:46
 msgid "home page"
 msgstr "la page d'accueil"
 
-#: _config.php:26
+#: _admin.php:47
 msgid "post pages"
 msgstr "la page d'un billet"
 
-#: _config.php:27
+#: _admin.php:48
 msgid "tags pages"
 msgstr "les pages d'un tag"
 
-#: _config.php:28
+#: _admin.php:49
 msgid "archives pages"
 msgstr "les pages des archives"
 
-#: _config.php:29
+#: _admin.php:50
 msgid "category pages"
 msgstr "les pages de catégorie"
 
-#: _config.php:30
+#: _admin.php:51
 msgid "entries feed"
 msgstr "le flux des billets"
 
-#: _config.php:35
+#: _admin.php:56
 msgid "\"%s\" pages from extension muppet"
 msgstr "la page de type \"%s\" de l'extension muppet"
 
-#: _config.php:83
-msgid "Configuration has been successfully updated."
-msgstr "La configuration a été mise à jour avec succés."
-
-#: _config.php:103
-msgid "Enable plugin"
-msgstr "Activer le plugin"
-
-#: _config.php:105
-msgid "Show feed after content on:"
-msgstr "Afficher le flux après le contenu sur :"
-
-#: _config.php:121
-msgid "Feed"
-msgstr "Flux"
-
-#: _config.php:123
-msgid "Default title"
-msgstr "Titre par défaut"
-
-#: _config.php:125
-msgid "Use %T to insert title of feed."
-msgstr "Utiliser %T pour insérer le titre du flux"
-
-#: _config.php:129
-msgid "Show description of feed"
-msgstr "Afficher la description"
-
-#: _config.php:142
-msgid "Format %s"
-msgstr "Format %s"
-
-#: _config.php:159
-#: _config.php:361
-msgid "In order to remove a format, leave its name empty."
-msgstr "Pour retirer un format, laisser son nom vide."
-
-#: _config.php:175
-#: _config.php:377
-msgid "Use date format of Dotclear or leave empty to use default date format of blog."
-msgstr "Utiliser le formatage des dates de Dotclear ou laisser vide pour utiliser le format par défaut du blog."
-
-#: _config.php:191
-#: _config.php:251
-#: _config.php:291
-#: _config.php:331
-#: _config.php:393
-#: _config.php:453
-#: _config.php:493
-#: _config.php:533
-msgid "Leave lengh empty for no limit."
-msgstr "Laisser vide pour ne pas mettre de limite."
-
-#: _config.php:197
-#: _config.php:399
-msgid "Title format:"
-msgstr "Format du titre :"
-
-#: _config.php:209
-#: _config.php:230
-#: _config.php:411
-#: _config.php:432
-msgid "Format can be:"
-msgstr "Le format peut-être :"
-
-#: _config.php:214
-#: _config.php:235
-#: _config.php:294
-#: _config.php:416
-#: _config.php:437
-#: _config.php:496
-msgid "Content"
-msgstr "Contenu"
-
-#: _config.php:218
-#: _config.php:420
-msgid "Over title format:"
-msgstr "Format au survole du titre :"
-
-#: _config.php:239
-#: _config.php:441
-msgid "Maximum length of title:"
-msgstr "Longueur maximum du titre :"
-
-#: _config.php:265
-#: _config.php:467
-msgid "Show description of entries"
-msgstr "Afficher la description des billets"
-
-#: _config.php:276
-#: _config.php:478
-msgid "Remove html of description"
-msgstr "Retirer le code HTML de la description"
-
-#: _config.php:279
-#: _config.php:481
-msgid "Maximum length of description:"
-msgstr "Longueur maximum de la description :"
-
-#: _config.php:305
-#: _config.php:507
-msgid "Show content of entries"
-msgstr "Afficher le contenu du flux"
-
-#: _config.php:316
-#: _config.php:518
-msgid "Remove html of content"
-msgstr "Retirer le code HTML du contenu"
-
-#: _config.php:319
-#: _config.php:521
-msgid "Maximum length of content:"
-msgstr "Longueur maximum du contenu :"
-
-#: _config.php:344
-msgid "New format"
-msgstr "Nouveau format"
-
-#: _config.php:541
-msgid "Informations"
-msgstr "Informations"
-
-#: _config.php:545
-msgid "Theme"
-msgstr "Thème"
-
-#: _config.php:547
-msgid "Theme must have behavoir publicEntryAfterContent."
-msgstr "Le thème doit avoir le behavior pulicEnryAfterContent."
-
-#: _config.php:548
+#: _admin.php:75
+#: _config.php:482
 msgid "To add feed to an entry edit this entry and put in sidebar the url of the feed and select a format."
 msgstr "Pour ajouter un flux à un billet, modifier ce billet et dans son menu latéral ajouter l'URL du flux et le format."
 
-#: _config.php:553
+#: _admin.php:82
+msgid "Enable \"fac\" extension"
+msgstr "Activer l'extension \"fac\""
+
+#: _admin.php:84
+msgid "You can manage related feed to display for each post with a predefined format."
+msgstr "Vous pouvez gérer les flux a afficher pour chaque billet avec un format prédéfini."
+
+#: _admin.php:86
+msgid "Feed"
+msgstr "Flux"
+
+#: _admin.php:87
+msgid "Default title"
+msgstr "Titre par défaut"
+
+#: _admin.php:89
+msgid "Use %T to insert title of feed."
+msgstr "Utiliser %T pour insérer le titre du flux."
+
+#: _admin.php:92
+msgid "Show description of feed"
+msgstr "Afficher la description"
+
+#: _admin.php:95
+msgid "Show feed after content on:"
+msgstr "Afficher le flux après le contenu sur :"
+
+#: _admin.php:226
+#: _admin.php:234
+#: _admin.php:337
+msgid "Linked feed"
+msgstr "Flux lié"
+
+#: _admin.php:226
+msgid "Add feed"
+msgstr "Ajouter un flux"
+
+#: _admin.php:234
+msgid "Remove feed"
+msgstr "Retirer un flux"
+
+#: _admin.php:264
+msgid "Linked feed deleted."
+msgstr "Flux lié effacé."
+
+#: _admin.php:291
+msgid "Linked feed added."
+msgstr "Flux lié ajouté."
+
+#: _admin.php:300
+msgid "Linked feed to this selection"
+msgstr "Lié un flux a cette selection"
+
+#: _admin.php:355
+msgid "view feed"
+msgstr "Voir le flux"
+
+#: _config.php:56
+msgid "Configuration has been successfully updated."
+msgstr "La configuration a été mise à jour avec succés."
+
+#: _config.php:76
+msgid "Format %s"
+msgstr "Format %s"
+
+#: _config.php:93
+#: _config.php:295
+msgid "In order to remove a format, leave its name empty."
+msgstr "Pour retirer un format, laisser son nom vide."
+
+#: _config.php:109
+#: _config.php:311
+msgid "Use date format of Dotclear or leave empty to use default date format of blog."
+msgstr "Utiliser le formatage des dates de Dotclear ou laisser vide pour utiliser le format par défaut du blog."
+
+#: _config.php:125
+#: _config.php:185
+#: _config.php:225
+#: _config.php:265
+#: _config.php:327
+#: _config.php:387
+#: _config.php:427
+#: _config.php:467
+msgid "Leave lengh empty for no limit."
+msgstr "Laisser vide pour ne pas mettre de limite."
+
+#: _config.php:131
+#: _config.php:333
+msgid "Title format:"
+msgstr "Format du titre :"
+
+#: _config.php:143
+#: _config.php:164
+#: _config.php:345
+#: _config.php:366
+msgid "Format can be:"
+msgstr "Le format peut-être :"
+
+#: _config.php:152
+#: _config.php:354
+msgid "Over title format:"
+msgstr "Format au survole du titre :"
+
+#: _config.php:173
+#: _config.php:375
+msgid "Maximum length of title:"
+msgstr "Longueur maximum du titre :"
+
+#: _config.php:199
+#: _config.php:401
+msgid "Show description of entries"
+msgstr "Afficher la description des billets"
+
+#: _config.php:210
+#: _config.php:412
+msgid "Remove html of description"
+msgstr "Retirer le code HTML de la description"
+
+#: _config.php:213
+#: _config.php:415
+msgid "Maximum length of description:"
+msgstr "Longueur maximum de la description :"
+
+#: _config.php:239
+#: _config.php:441
+msgid "Show content of entries"
+msgstr "Afficher le contenu du flux"
+
+#: _config.php:250
+#: _config.php:452
+msgid "Remove html of content"
+msgstr "Retirer le code HTML du contenu"
+
+#: _config.php:253
+#: _config.php:455
+msgid "Maximum length of content:"
+msgstr "Longueur maximum du contenu :"
+
+#: _config.php:278
+msgid "New format"
+msgstr "Nouveau format"
+
+#: _config.php:475
+msgid "Informations"
+msgstr "Informations"
+
+#: _config.php:479
+msgid "Theme"
+msgstr "Thème"
+
+#: _config.php:481
+msgid "Theme must have behavoir publicEntryAfterContent."
+msgstr "Le thème doit avoir le behavior pulicEnryAfterContent."
+
+#: _config.php:487
 msgid "Structure"
 msgstr "Structure"
 
-#: _config.php:556
+#: _config.php:490
 msgid "Title of feed"
 msgstr "Titre du flux"
 
-#: _config.php:557
+#: _config.php:491
 msgid "Description of feed"
 msgstr "Descritpion du flux"
 
-#: _config.php:559
+#: _config.php:493
 msgid "Title of entry"
 msgstr "Titre du billet"
 
-#: _config.php:560
+#: _config.php:494
 msgid "Description of entry"
 msgstr "Description du billet"
 
-#: _public.php:130
+#: _public.php:120
 msgid "a related feed"
 msgstr "un flux lié"
 
