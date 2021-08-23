@@ -1,3 +1,6 @@
+fac 0.8.1
+ * fix context filters
+
 fac 0.8 - 2021-08-19
  * update license
  * fixed PSR2 coding style

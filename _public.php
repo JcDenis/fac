@@ -133,7 +133,10 @@ class facPublic
         if ($core->blog->settings->fac->fac_showfeeddesc 
          && '' != $feed->description) {
             $feeddesc = 
-            '<p>' . context::global_filter($feed->description, 1, 1, 0, 0, 0) . '</p>';
+            '<p>' . context::global_filters(
+                $feed->description, 
+                ['encode_xml', 'remove_html']
+            ) . '</p>';
         }
 
         # Date format
@@ -157,7 +160,7 @@ class facPublic
             $date = dt::dt2str($dateformat, $item->pubdate);
 
             # Entries title
-            $title = context::global_filter(
+            $title = context::global_filters(
                 str_replace(
                     array(
                         '%D',
@@ -175,15 +178,11 @@ class facPublic
                     ),
                     $format['linestitletext']
                 ),
-                0,
-                1,
-                abs((integer) $format['linestitlelength']),
-                0,
-                0
+                ['remove_html', 'cut_string' => abs((integer) $format['linestitlelength'])],
             );
 
             # Entries over title
-            $overtitle = context::global_filter(
+            $overtitle = context::global_filters(
                 str_replace(
                     array(
                         '%D',
@@ -201,11 +200,7 @@ class facPublic
                     ),
                     $format['linestitleover']
                 ),
-                0,
-                1,
-                350,
-                0,
-                0
+                ['remove_html', 'cut_string' => 350],
             );
 
             # Entries description
@@ -213,12 +208,9 @@ class facPublic
             if ($format['showlinesdescription'] 
              && '' != $item->description) {
                 $description = '<dd>' .
-                context::global_filter(
+                context::global_filters(
                     $item->description,
-                    0,
-                    (integer) $format['linesdescriptionnohtml'],
-                    abs((integer) $format['linesdescriptionlength']),
-                    0,0
+                    ['remove_html' => (integer) $format['linesdescriptionnohtml'], 'cut_string' => abs((integer) $format['linesdescriptionlength'])]
                 ) . '</dd>';
             }
 
@@ -227,13 +219,9 @@ class facPublic
             if ($format['showlinescontent'] 
              && '' != $item->content) {
                 $content = '<dd>'.
-                context::global_filter(
+                context::global_filters(
                     $item->content,
-                    0,
-                    (integer) $format['linescontentnohtml'],
-                    abs((integer) $format['linescontentlength']),
-                    0,
-                    0
+                    ['remove_html' => (integer) $format['linescontentnohtml'], 'cut_string' => abs((integer) $format['linescontentlength'])]
                 ) . '</dd>';
             }
 
