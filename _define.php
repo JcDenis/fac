@@ -25,6 +25,10 @@ $this->registerModule(
         'type' => 'plugin',
         'dc_min' => '2.19',
         'support' => 'https://github.com/JcDenis/fac',
-        'details' => 'https://plugins.dotaddict.org/dc2/details/fac'
+        'details' => 'https://plugins.dotaddict.org/dc2/details/fac',
+        'repository' => 'https://github.com/JcDenis/fac/',
+        'settings' => [
+            'blog' => '#params.fac_params'
+        ]
     ]
 );

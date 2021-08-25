@@ -113,7 +113,6 @@ class facAdmin
         '</div>' .
         '<br class="clear" />' . 
         '</div>';
-
     }
 
     /**
