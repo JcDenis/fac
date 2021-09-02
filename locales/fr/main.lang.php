@@ -170,4 +170,3 @@ $GLOBALS['__l10n']['Description of entry'] = 'Description du billet';
 $GLOBALS['__l10n']['a related feed'] = 'un flux lié';
 
 $GLOBALS['__l10n']['Add RSS/Atom feeds after entries content'] = 'Ajouter des flux RSS/Atom après le contenu des billets';
-
