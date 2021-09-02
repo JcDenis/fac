@@ -1,10 +1,10 @@
 <modules xmlns:da="http://dotaddict.org/da/">
 <module id="fac">
 <name>Feed after content</name>
-<version>0.9.2</version>
+<version>0.9.3</version>
 <author>Jean-Christian Denis and Contributors</author>
 <desc>Add RSS/Atom feeds after entries content</desc>
-<file>https://github.com/JcDenis/fac/releases/download/v0.9.2/plugin-fac.zip</file>
+<file>https://github.com/JcDenis/fac/releases/download/v0.9.3/plugin-fac.zip</file>
 <da:details>https://plugins.dotaddict.org/dc2/details/fac</da:details>
 <da:support>https://github.com/JcDenis/fac</da:support>
 </module>

@@ -19,7 +19,7 @@ $this->registerModule(
     'Feed after content',
     'Add RSS/Atom feeds after entries content',
     'Jean-Christian Denis and Contributors',
-    '0.9.2',
+    '0.9.3',
     [
         'requires' => [['core', '2.19']], 
         'permissions' => 'usage,contentadmin',
