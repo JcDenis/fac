@@ -5,6 +5,7 @@
 <author>Jean-Christian Denis and Contributors</author>
 <desc>Add RSS/Atom feeds after entries content</desc>
 <file>https://github.com/JcDenis/fac/releases/download/v0.9.3/plugin-fac.zip</file>
+<da:dcmin>2.19</da:dcmin>
 <da:details>https://plugins.dotaddict.org/dc2/details/fac</da:details>
 <da:support>https://github.com/JcDenis/fac</da:support>
 </module>

@@ -73,7 +73,15 @@ class facAdmin
         '<div class="fieldset"><h4 id="fac_params">Feed after content</h4>' .
         '<p class="form-note">' . 
         __('To add feed to an entry edit this entry and put in sidebar the url of the feed and select a format.') .
-        '</p>' .
+        '</p>';
+        if ($core->auth->isSuperAdmin()) {
+            echo '<p><a href="' . $core->adminurl->get('admin.plugins', [
+                'module' => 'fac', 
+                'conf' => 1, 
+                'redir' => $core->adminurl->get('admin.blog.pref') . '#fac_params'
+            ]) . '">' . __('Configure formats') . '</a></p>';
+        }
+        echo 
         '<div class="two-cols">' .
         '<div class="col">' .
         '<h5>' . __('Activation') . '</h5>' .

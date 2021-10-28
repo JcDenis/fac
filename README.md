@@ -1,5 +1,12 @@
 # README
 
+[![Release](https://img.shields.io/github/v/release/JcDenis/fac)](https://github.com/JcDenis/fac/releases)
+[![Date](https://img.shields.io/github/release-date/JcDenis/fac)](https://github.com/JcDenis/fac/releases)
+[![Issues](https://img.shields.io/github/issues/JcDenis/fac)](https://github.com/JcDenis/fac/issues)
+[![Dotclear](https://img.shields.io/badge/dotclear-v2.19-blue.svg)](https://fr.dotclear.org/download)
+[![Dotaddict](https://img.shields.io/badge/dotaddict-official-green.svg)](https://plugins.dotaddict.org/dc2/details/fac)
+[![License](https://img.shields.io/github/license/JcDenis/fac)](https://github.com/JcDenis/fac/blob/master/LICENSE)
+
 ## WHAT IS FAC ?
 
 "Feed After Content" is a plugin for the open-source 

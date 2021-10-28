@@ -15,6 +15,10 @@ if (!defined('DC_CONTEXT_MODULE')) {
     return null;
 }
 
+if (!$core->auth->isSuperAdmin()) {
+    return null;
+}
+
 $redir = empty($_REQUEST['redir']) ? 
     $list->getURL() . '#plugins' : $_REQUEST['redir'];
 
@@ -53,7 +57,7 @@ if (!empty($_POST['save'])) {
         $core->blog->triggerBlog();
 
         dcPage::addSuccessNotice(
-            __('Configuration has been successfully updated.')
+            __('Configuration successfully updated.')
         );
         http::redirect(
             $list->getURL('module=fac&conf=1&redir=' . $list->getRedir())
