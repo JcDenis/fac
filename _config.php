@@ -1,30 +1,29 @@
 <?php
 /**
  * @brief fac, a plugin for Dotclear 2
- * 
+ *
  * @package Dotclear
  * @subpackage Plugin
- * 
+ *
  * @author Jean-Christian Denis and Contributors
- * 
+ *
  * @copyright Jean-Christian Denis
  * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
-
 if (!defined('DC_CONTEXT_MODULE')) {
     return null;
 }
 
-if (!$core->auth->isSuperAdmin()) {
+if (!dcCore::app()->auth->isSuperAdmin()) {
     return null;
 }
 
-$redir = empty($_REQUEST['redir']) ? 
-    $list->getURL() . '#plugins' : $_REQUEST['redir'];
+$redir = empty($_REQUEST['redir']) ?
+    dcCore::app()->admin->list->getURL() . '#plugins' : $_REQUEST['redir'];
 
 # -- Get settings --
-$core->blog->settings->addNamespace('fac');
-$s = $core->blog->settings->fac;
+dcCore::app()->blog->settings->addNamespace('fac');
+$s = dcCore::app()->blog->settings->fac;
 
 $fac_formats = @unserialize($s->fac_formats);
 
@@ -37,7 +36,7 @@ if (!empty($_POST['save'])) {
     try {
         $fac_formats = [];
 
-        foreach($_POST['fac_formats'] as $uid => $f) {
+        foreach ($_POST['fac_formats'] as $uid => $f) {
             if (!empty($f['name'])) {
                 $fac_formats[$uid] = $f;
             }
@@ -46,31 +45,31 @@ if (!empty($_POST['save'])) {
         // fix 2021.08.21 : formats are now global
         $s->drop('fac_formats');
         $s->put(
-            'fac_formats', 
-            serialize($fac_formats), 
-            'string', 
-            'Formats of feeds contents', 
-            true, 
+            'fac_formats',
+            serialize($fac_formats),
+            'string',
+            'Formats of feeds contents',
+            true,
             true
         );
 
-        $core->blog->triggerBlog();
+        dcCore::app()->blog->triggerBlog();
 
-        dcPage::addSuccessNotice(
+        dcAdminNotices::addSuccessNotice(
             __('Configuration successfully updated.')
         );
         http::redirect(
-            $list->getURL('module=fac&conf=1&redir=' . $list->getRedir())
+            dcCore::app()->admin->list->getURL('module=fac&conf=1&redir=' . dcCore::app()->admin->list->getRedir())
         );
     } catch (Exception $e) {
-        $core->error->add($e->getMessage());
+        dcCore::app()->error->add($e->getMessage());
     }
 }
 
 # -- Display form --
 
 $i = 1;
-foreach($fac_formats as $uid => $f) {
+foreach ($fac_formats as $uid => $f) {
     if (empty($f['name'])) {
         continue;
     }
@@ -86,7 +85,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][name]',
-            'fac_formats_' . $uid . '_name'
+            'fac_formats_' . $uid . '_name',
         ],
         20,
         255,
@@ -102,7 +101,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][dateformat]',
-            'fac_formats_' . $uid . '_dateformat'
+            'fac_formats_' . $uid . '_dateformat',
         ],
         20,
         255,
@@ -118,7 +117,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][lineslimit]',
-            'fac_formats_' . $uid . '_lineslimit'
+            'fac_formats_' . $uid . '_lineslimit',
         ],
         5,
         4,
@@ -136,7 +135,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][linestitletext]',
-            'fac_formats_' . $uid . '_linestitletext'
+            'fac_formats_' . $uid . '_linestitletext',
         ],
         20,
         255,
@@ -157,7 +156,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][linestitleover]',
-            'fac_formats_' . $uid . '_linestitleover'
+            'fac_formats_' . $uid . '_linestitleover',
         ],
         20,
         255,
@@ -178,7 +177,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][linestitlelength]',
-            'fac_formats_' . $uid . '_linestitlelength'
+            'fac_formats_' . $uid . '_linestitlelength',
         ],
         5,
         4,
@@ -195,7 +194,7 @@ foreach($fac_formats as $uid => $f) {
     form::checkbox(
         [
             'fac_formats[' . $uid . '][showlinesdescription]',
-            'fac_formats_' . $uid . '_showlinesdescription'
+            'fac_formats_' . $uid . '_showlinesdescription',
         ],
         1,
         !empty($f['showlinesdescription'])
@@ -206,11 +205,11 @@ foreach($fac_formats as $uid => $f) {
     form::checkbox(
         [
             'fac_formats[' . $uid . '][linesdescriptionnohtml]',
-            'fac_formats_' . $uid . '_linesdescriptionnohtml'
+            'fac_formats_' . $uid . '_linesdescriptionnohtml',
         ],
         1,
         !empty($f['linesdescriptionnohtml'])
-    ).
+    ) .
     __('Remove html of description') . '</label></p>
 
     <p><label for="fac_formats_' . $uid . '_linesdescriptionlength">' .
@@ -218,7 +217,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][linesdescriptionlength]',
-            'fac_formats_' . $uid . '_linesdescriptionlength'
+            'fac_formats_' . $uid . '_linesdescriptionlength',
         ],
         5,
         4,
@@ -235,7 +234,7 @@ foreach($fac_formats as $uid => $f) {
     form::checkbox(
         [
             'fac_formats[' . $uid . '][showlinescontent]',
-            'fac_formats_' . $uid . '_showlinescontent'
+            'fac_formats_' . $uid . '_showlinescontent',
         ],
         1,
         !empty($f['showlinescontent'])
@@ -246,7 +245,7 @@ foreach($fac_formats as $uid => $f) {
     form::checkbox(
         [
             'fac_formats[' . $uid . '][linescontentnohtml]',
-            'fac_formats_' . $uid . '_linescontentnohtml'
+            'fac_formats_' . $uid . '_linescontentnohtml',
         ],
         1,
         !empty($f['linescontentnohtml'])
@@ -258,7 +257,7 @@ foreach($fac_formats as $uid => $f) {
     form::field(
         [
             'fac_formats[' . $uid . '][linescontentlength]',
-            'fac_formats_' . $uid . '_linescontentlength'
+            'fac_formats_' . $uid . '_linescontentlength',
         ],
         5,
         4,
@@ -288,14 +287,14 @@ __('Name:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][name]',
-        'fac_formats_' . $uid . '_name'
+        'fac_formats_' . $uid . '_name',
     ],
     20,
     255,
     '',
     'maximal'
 ) . '</p>
-<p class="form-note">'.
+<p class="form-note">' .
 __('In order to remove a format, leave its name empty.') .
 '</p>
 
@@ -304,7 +303,7 @@ __('Date format:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][dateformat]',
-        'fac_formats_' . $uid . '_dateformat'
+        'fac_formats_' . $uid . '_dateformat',
     ],
     20,
     255,
@@ -320,7 +319,7 @@ __('Entries limit:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][lineslimit]',
-        'fac_formats_' . $uid . '_lineslimit'
+        'fac_formats_' . $uid . '_lineslimit',
     ],
     5,
     4,
@@ -338,7 +337,7 @@ __('Title format:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][linestitletext]',
-        'fac_formats_' . $uid . '_linestitletext'
+        'fac_formats_' . $uid . '_linestitletext',
     ],
     20,
     255,
@@ -355,11 +354,11 @@ __('Format can be:') .
 '</p>
 
 <p><label for="fac_formats_' . $uid . '_linestitleover">' .
-__('Over title format:')  .  '</label>' .
+__('Over title format:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][linestitleover]',
-        'fac_formats_' . $uid . '_linestitleover'
+        'fac_formats_' . $uid . '_linestitleover',
     ],
     20,
     255,
@@ -380,14 +379,14 @@ __('Maximum length of title:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][linestitlelength]',
-        'fac_formats_' . $uid . '_linestitlelength'
+        'fac_formats_' . $uid . '_linestitlelength',
     ],
     5,
     4,
     150,
     'maximal'
 ) . '</p>
-<p class="form-note">' . 
+<p class="form-note">' .
 __('Leave lengh empty for no limit.') .
 '</p>
 
@@ -397,7 +396,7 @@ __('Leave lengh empty for no limit.') .
 form::checkbox(
     [
         'fac_formats[' . $uid . '][showlinesdescription]',
-        'fac_formats_' . $uid . '_showlinesdescription'
+        'fac_formats_' . $uid . '_showlinesdescription',
     ],
     1,
     0
@@ -408,7 +407,7 @@ __('Show description of entries') . '</label></p>
 form::checkbox(
     [
         'fac_formats[' . $uid . '][linesdescriptionnohtml]',
-        'fac_formats_' . $uid . '_linesdescriptionnohtml'
+        'fac_formats_' . $uid . '_linesdescriptionnohtml',
     ],
     1,
     1
@@ -420,7 +419,7 @@ __('Maximum length of description:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][linesdescriptionlength]',
-        'fac_formats_' . $uid . '_linesdescriptionlength'
+        'fac_formats_' . $uid . '_linesdescriptionlength',
     ],
     5,
     4,
@@ -437,7 +436,7 @@ __('Leave lengh empty for no limit.') .
 form::checkbox(
     [
         'fac_formats[' . $uid . '][showlinescontent]',
-        'fac_formats_' . $uid . '_showlinescontent'
+        'fac_formats_' . $uid . '_showlinescontent',
     ],
     1,
     0
@@ -448,7 +447,7 @@ __('Show content of entries') . '</label></p>
 form::checkbox(
     [
         'fac_formats[' . $uid . '][linescontentnohtml]',
-        'fac_formats_' . $uid . '_linescontentnohtml'
+        'fac_formats_' . $uid . '_linescontentnohtml',
     ],
     1,
     1
@@ -460,7 +459,7 @@ __('Maximum length of content:') . '</label>' .
 form::field(
     [
         'fac_formats[' . $uid . '][linescontentlength]',
-        'fac_formats_' . $uid . '_linescontentlength'
+        'fac_formats_' . $uid . '_linescontentlength',
     ],
     5,
     4,

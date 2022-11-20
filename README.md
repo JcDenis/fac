@@ -3,7 +3,7 @@
 [![Release](https://img.shields.io/github/v/release/JcDenis/fac)](https://github.com/JcDenis/fac/releases)
 [![Date](https://img.shields.io/github/release-date/JcDenis/fac)](https://github.com/JcDenis/fac/releases)
 [![Issues](https://img.shields.io/github/issues/JcDenis/fac)](https://github.com/JcDenis/fac/issues)
-[![Dotclear](https://img.shields.io/badge/dotclear-v2.19-blue.svg)](https://fr.dotclear.org/download)
+[![Dotclear](https://img.shields.io/badge/dotclear-v2.24-blue.svg)](https://fr.dotclear.org/download)
 [![Dotaddict](https://img.shields.io/badge/dotaddict-official-green.svg)](https://plugins.dotaddict.org/dc2/details/fac)
 [![License](https://img.shields.io/github/license/JcDenis/fac)](https://github.com/JcDenis/fac/blob/master/LICENSE)
 
@@ -22,7 +22,7 @@ to link en extenal feed to the bottom of an entry.
   * superadmin to configure feeds formats
   * admin permissions to configure plugin
   * usage,contentadmin permissions to link feeds
-  * Dotclear 2.19 
+  * Dotclear 2.24 
   * A theme that contents behavior publicEntryAfterContent
 
 ## USAGE
@@ -39,8 +39,14 @@ to link a feed to this post.
 You can also add or remove feed to multiple post from posts actions page. 
 This plugins also supports pages from plugin "muppet".
 
-## MORE
+## LINKS
 
- * License : GNU GPL v2
+ * License : [GNU GPL v2](https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html)
  * Source & contribution : [GitHub Page](https://github.com/JcDenis/fac)
- * Packages & details:  [Dotaddict Page](https://plugins.dotaddict.org/dc2/details/fac)
+ * Packages & details: [Dotaddict Page](https://plugins.dotaddict.org/dc2/details/fac)
+
+## CONTRIBUTORS
+
+ * Jean-Christian Denis
+
+ You are welcome to contribute to this code.

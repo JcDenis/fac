@@ -1,5 +1,5 @@
-0.9.3
-- [ ] ?
+0.10 2022.11.20
+- fix compatibility with Dotclear 2.24 (required)
 
 0.9.2 - 2021.09.02
 - update license bloc to phpdoc
