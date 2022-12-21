@@ -14,17 +14,17 @@ if (!defined('DC_CONTEXT_ADMIN')) {
     return null;
 }
 
-dcCore::app()->blog->settings->addNamespace('fac');
+dcCore::app()->blog->settings->addNamespace(basename(__DIR__));
 
 # Admin behaviors
-dcCore::app()->addBehavior('adminBlogPreferencesFormV2', ['facAdmin', 'adminBlogPreferencesForm']);
+dcCore::app()->addBehavior('adminBlogPreferencesFormV2', ['facAdmin', 'adminBlogPreferencesFormV2']);
 dcCore::app()->addBehavior('adminBeforeBlogSettingsUpdate', ['facAdmin', 'adminBeforeBlogSettingsUpdate']);
 dcCore::app()->addBehavior('adminPostHeaders', ['facAdmin', 'adminPostHeaders']);
 dcCore::app()->addBehavior('adminPostFormItems', ['facAdmin', 'adminPostFormItems']);
 dcCore::app()->addBehavior('adminAfterPostCreate', ['facAdmin', 'adminAfterPostSave']);
 dcCore::app()->addBehavior('adminAfterPostUpdate', ['facAdmin', 'adminAfterPostSave']);
 dcCore::app()->addBehavior('adminBeforePostDelete', ['facAdmin', 'adminBeforePostDelete']);
-dcCore::app()->addBehavior('adminPostsActions', ['facAdmin', 'adminPostsActionsPage']);
+dcCore::app()->addBehavior('adminPostsActions', ['facAdmin', 'adminPostsActions']);
 
 /**
  * @ingroup DC_PLUGIN_FAC
@@ -65,7 +65,7 @@ class facAdmin
      *
      * @param  dcSettings   $blog_settings  dcSettings instance
      */
-    public static function adminBlogPreferencesForm(dcSettings $blog_settings)
+    public static function adminBlogPreferencesFormV2(dcSettings $blog_settings)
     {
         echo
         '<div class="fieldset"><h4 id="fac_params">Feed after content</h4>' .
@@ -74,7 +74,7 @@ class facAdmin
         '</p>';
         if (dcCore::app()->auth->isSuperAdmin()) {
             echo '<p><a href="' . dcCore::app()->adminurl->get('admin.plugins', [
-                'module' => 'fac',
+                'module' => basename(__DIR__),
                 'conf'   => 1,
                 'redir'  => dcCore::app()->adminurl->get('admin.blog.pref') . '#fac_params',
             ]) . '">' . __('Configure formats') . '</a></p>';
@@ -84,23 +84,23 @@ class facAdmin
         '<div class="col">' .
         '<h5>' . __('Activation') . '</h5>' .
         '<p><label class="classic">' .
-        form::checkbox('fac_active', '1', (bool) $blog_settings->fac->fac_active) .
+        form::checkbox('fac_active', '1', (bool) $blog_settings->get(basename(__DIR__))->get('active')) .
         __('Enable "fac" extension') . '</label></p>' .
         '<p class="form-note">' .
         __('You can manage related feed to display for each post with a predefined format.') .
         '</p>' .
         '<h5>' . __('Feed') . '</h5>' .
         '<p><label for="fac_defaultfeedtitle">' . __('Default title') . '</label>' .
-        form::field('fac_defaultfeedtitle', 65, 255, (string) $blog_settings->fac->fac_defaultfeedtitle) . '</p>' .
+        form::field('fac_defaultfeedtitle', 65, 255, (string) $blog_settings->get(basename(__DIR__))->get('defaultfeedtitle')) . '</p>' .
         '<p class="form-note">' . __('Use %T to insert title of feed.') . '</p>' .
         '<p><label class="classic" for="fac_showfeeddesc">' .
-        form::checkbox('fac_showfeeddesc', 1, (bool) $blog_settings->fac->fac_showfeeddesc) .
+        form::checkbox('fac_showfeeddesc', 1, (bool) $blog_settings->get(basename(__DIR__))->get('showfeeddesc')) .
         __('Show description of feed') . '</label></p>' .
         '</div>' .
         '<div class="col">' .
         '<h5>' . __('Show feed after content on:') . '</h5>';
 
-        $fac_public_tpltypes = @unserialize($blog_settings->fac->fac_public_tpltypes);
+        $fac_public_tpltypes = json_decode($blog_settings->get(basename(__DIR__))->get('public_tpltypes'), true);
         if (!is_array($fac_public_tpltypes)) {
             $fac_public_tpltypes = [];
         }
@@ -128,10 +128,10 @@ class facAdmin
      */
     public static function adminBeforeBlogSettingsUpdate(dcSettings $blog_settings)
     {
-        $blog_settings->fac->put('fac_active', !empty($_POST['fac_active']));
-        $blog_settings->fac->put('fac_public_tpltypes', serialize($_POST['fac_public_tpltypes']));
-        $blog_settings->fac->put('fac_defaultfeedtitle', (string) $_POST['fac_defaultfeedtitle']);
-        $blog_settings->fac->put('fac_showfeeddesc', !empty($_POST['fac_showfeeddesc']));
+        $blog_settings->get(basename(__DIR__))->put('active', !empty($_POST['fac_active']));
+        $blog_settings->get(basename(__DIR__))->put('public_tpltypes', json_encode($_POST['fac_public_tpltypes']));
+        $blog_settings->get(basename(__DIR__))->put('defaultfeedtitle', (string) $_POST['fac_defaultfeedtitle']);
+        $blog_settings->get(basename(__DIR__))->put('showfeeddesc', !empty($_POST['fac_showfeeddesc']));
     }
 
     /**
@@ -141,7 +141,7 @@ class facAdmin
      */
     public static function adminPostHeaders()
     {
-        return dcPage::jsLoad('index.php?pf=fac/js/admin.js');
+        return dcPage::jsModuleLoad(basename(__DIR__) . '/js/admin.js');
     }
 
     /**
@@ -153,7 +153,7 @@ class facAdmin
      */
     public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, $post)
     {
-        if (!dcCore::app()->blog->settings->fac->fac_active) {
+        if (!dcCore::app()->blog->settings->get(basename(__DIR__))->get('active')) {
             return null;
         }
 
@@ -214,9 +214,9 @@ class facAdmin
      *
      * @param  dcPostsActions $pa   dcPostsActionsPage instance
      */
-    public static function adminPostsActionsPage(dcPostsActions $pa)
+    public static function adminPostsActions(dcPostsActions $pa)
     {
-        if (!dcCore::app()->blog->settings->fac->fac_active) {
+        if (!dcCore::app()->blog->settings->get(basename(__DIR__))->get('active')) {
             return null;
         }
 
@@ -329,7 +329,7 @@ class facAdmin
      */
     protected static function formFeed($url = '', $format = '')
     {
-        if (!dcCore::app()->blog->settings->fac->fac_active) {
+        if (!dcCore::app()->blog->settings->get(basename(__DIR__))->get('active')) {
             return null;
         }
 
@@ -364,7 +364,7 @@ class facAdmin
      */
     protected static function comboFac()
     {
-        $formats = @unserialize(dcCore::app()->blog->settings->fac->fac_formats);
+        $formats = json_decode(dcCore::app()->blog->settings->get(basename(__DIR__))->get('formats'), true);
         if (!is_array($formats) || empty($formats)) {
             return [];
         }

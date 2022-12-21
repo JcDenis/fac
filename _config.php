@@ -22,10 +22,9 @@ $redir = empty($_REQUEST['redir']) ?
     dcCore::app()->admin->list->getURL() . '#plugins' : $_REQUEST['redir'];
 
 # -- Get settings --
-dcCore::app()->blog->settings->addNamespace('fac');
-$s = dcCore::app()->blog->settings->fac;
+$s = dcCore::app()->blog->settings->addNamespace(basename(__DIR__));
 
-$fac_formats = @unserialize($s->fac_formats);
+$fac_formats = json_decode($s->get('formats'), true);
 
 if (!is_array($fac_formats)) {
     $fac_formats = [];
@@ -43,10 +42,10 @@ if (!empty($_POST['save'])) {
         }
 
         // fix 2021.08.21 : formats are now global
-        $s->drop('fac_formats');
+        $s->drop('formats');
         $s->put(
-            'fac_formats',
-            serialize($fac_formats),
+            'formats',
+            json_encode($fac_formats),
             'string',
             'Formats of feeds contents',
             true,
@@ -59,7 +58,7 @@ if (!empty($_POST['save'])) {
             __('Configuration successfully updated.')
         );
         http::redirect(
-            dcCore::app()->admin->list->getURL('module=fac&conf=1&redir=' . dcCore::app()->admin->list->getRedir())
+            dcCore::app()->admin->list->getURL('module=' . basename(__DIR__) . '&conf=1&redir=' . dcCore::app()->admin->list->getRedir())
         );
     } catch (Exception $e) {
         dcCore::app()->error->add($e->getMessage());

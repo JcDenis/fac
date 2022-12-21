@@ -14,24 +14,24 @@ if (!defined('DC_CONTEXT_ADMIN')) {
     return null;
 }
 
-# -- Module specs --
+// Module specs
 $mod_conf = [
     [
-        'fac_active',
+        'active',
         'Enabled fac plugin',
         false,
         'boolean',
     ],
     [
-        'fac_public_tpltypes',
+        'public_tpltypes',
         'List of templates types which used fac',
-        serialize(['post', 'tag', 'archive']),
+        json_encode(['post', 'tag', 'archive']),
         'string',
     ],
     [
-        'fac_formats',
+        'formats',
         'Formats of feeds contents',
-        serialize([
+        json_encode([
             uniqid() => [
                 'name'                   => 'default',
                 'dateformat'             => '',
@@ -66,32 +66,56 @@ $mod_conf = [
         true,
     ],
     [
-        'fac_defaultfeedtitle',
+        'defaultfeedtitle',
         'Default title of feed',
         '%T',
         'string',
     ],
     [
-        'fac_showfeeddesc',
+        'showfeeddesc',
         'Show description of feed',
         1,
         'boolean',
     ],
 ];
 
-# -- Nothing to change below --
+// Nothing to change below
 try {
-    # Check module version
+    // Check module version
     if (!dcCore::app()->newVersion(
-        basename(__DIR__), 
+        basename(__DIR__),
         dcCore::app()->plugins->moduleInfo(basename(__DIR__), 'version')
     )) {
         return null;
     }
-    # Set module settings
+
+    // version < 1.0 : upgrade settings id and ns and array
+    $current = dcCore::app()->getVersion(basename(__DIR__));
+    if ($current && version_compare($current, '1.0', '<')) {
+        $record = dcCore::app()->con->select(
+            'SELECT * FROM ' . dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME . ' ' .
+            "WHERE setting_ns = 'fac' "
+        );
+        while ($record->fetch()) {
+            if (preg_match('/^fac_(.*?)$/', $record->setting_id, $match)) {
+                $cur = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME);
+                if (in_array($record->setting_id, ['fac_public_tpltypes', 'fac_formats'])) {
+                    $cur->setting_value = json_encode(@unserialize($record->setting_value));
+                }
+                $cur->setting_id = $match[1];
+                $cur->setting_ns = basename(__DIR__);
+                $cur->update(
+                    "WHERE setting_id = '" . $record->setting_id . "' and setting_ns = 'fac' " .
+                    'AND blog_id ' . (null === $record->blog_id ? 'IS NULL ' : ("= '" . dcCore::app()->con->escape($record->blog_id) . "' "))
+                );
+            }
+        }
+    }
+
+    // Set module settings
     dcCore::app()->blog->settings->addNamespace(basename(__DIR__));
     foreach ($mod_conf as $v) {
-        dcCore::app()->blog->settings->__get(basename(__DIR__))->put(
+        dcCore::app()->blog->settings->get(basename(__DIR__))->put(
             $v[0],
             $v[2],
             $v[3],

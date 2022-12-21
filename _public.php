@@ -15,16 +15,16 @@ if (!defined('DC_RC_PATH')) {
 }
 
 dcCore::app()->addBehavior('publicEntryAfterContent', function (dcCore $core, context $_ctx) {
-    dcCore::app()->blog->settings->addNamespace('fac');
+    dcCore::app()->blog->settings->addNamespace(basename(__DIR__));
 
     # Not active or not a post
-    if (!dcCore::app()->blog->settings->fac->fac_active
+    if (!dcCore::app()->blog->settings->get(basename(__DIR__))->get('active')
      || !dcCore::app()->ctx->exists('posts')) {
         return null;
     }
 
     # Not in page to show
-    $types = @unserialize((string) dcCore::app()->blog->settings->fac->fac_public_tpltypes);
+    $types = json_decode((string) dcCore::app()->blog->settings->get(basename(__DIR__))->get('public_tpltypes'), true);
     if (!is_array($types)
      || !in_array(dcCore::app()->url->type, $types)) {
         return null;
@@ -66,7 +66,7 @@ dcCore::app()->addBehavior('publicEntryAfterContent', function (dcCore $core, co
         'linescontentnohtml'     => '1',
     ];
 
-    $formats = @unserialize((string) dcCore::app()->blog->settings->fac->fac_formats);
+    $formats = json_decode((string) dcCore::app()->blog->settings->get(basename(__DIR__))->get('formats'), true);
     if (empty($formats)
      || !is_array($formats)
      || !isset($formats[$fac_format->meta_id])) {
@@ -94,25 +94,25 @@ dcCore::app()->addBehavior('publicEntryAfterContent', function (dcCore $core, co
 
     # Feed title
     $feedtitle = '';
-    if ('' != dcCore::app()->blog->settings->fac->fac_defaultfeedtitle) {
+    if ('' != dcCore::app()->blog->settings->get(basename(__DIR__))->get('defaultfeedtitle')) {
         $feedtitle = '<h3>' . html::escapeHTML(
             empty($feed->title) ?
             str_replace(
                 '%T',
                 __('a related feed'),
-                dcCore::app()->blog->settings->fac->fac_defaultfeedtitle
+                dcCore::app()->blog->settings->get(basename(__DIR__))->get('defaultfeedtitle')
             ) :
             str_replace(
                 '%T',
                 $feed->title,
-                dcCore::app()->blog->settings->fac->fac_defaultfeedtitle
+                dcCore::app()->blog->settings->get(basename(__DIR__))->get('defaultfeedtitle')
             )
         ) . '</h3>';
     }
 
     # Feed desc
     $feeddesc = '';
-    if (dcCore::app()->blog->settings->fac->fac_showfeeddesc
+    if (dcCore::app()->blog->settings->get(basename(__DIR__))->get('showfeeddesc')
      && '' != $feed->description) {
         $feeddesc = '<p>' . context::global_filters(
             $feed->description,
@@ -123,7 +123,7 @@ dcCore::app()->addBehavior('publicEntryAfterContent', function (dcCore $core, co
     # Date format
     $dateformat = '' != $format['dateformat'] ?
         $format['dateformat'] :
-        dcCore::app()->blog->settings->system->date_format . ',' . dcCore::app()->blog->settings->system->time_format;
+        dcCore::app()->blog->settings->get('system')->get('date_format') . ',' . dcCore::app()->blog->settings->get('system')->get('time_format');
 
     # Enrties limit
     $entrieslimit = abs((int) $format['lineslimit']);
