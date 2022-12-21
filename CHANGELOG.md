@@ -1,3 +1,9 @@
+1.0 - 2022.12.21
+- use short settings id
+- use anonymous functions
+- use abstract plugin id
+- fix install
+
 0.10 2022.11.20
 - fix compatibility with Dotclear 2.24 (required)
 
