@@ -1,3 +1,7 @@
+1.1 - 2023.03.26
+- require dotclear 2.26
+- use namespace
+
 1.0 - 2022.12.21
 - use short settings id
 - use anonymous functions
