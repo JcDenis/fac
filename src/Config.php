@@ -35,7 +35,8 @@ class Config extends dcNsProcess
     public static function init(): bool
     {
         static::$init == defined('DC_CONTEXT_ADMIN')
-            && dcCore::app()->auth?->isSuperAdmin();
+            && !is_null(dcCore::app()->auth)
+            && dcCore::app()->auth->isSuperAdmin();
 
         return static::$init;
     }
@@ -43,6 +44,11 @@ class Config extends dcNsProcess
     public static function process(): bool
     {
         if (!static::$init) {
+            return false;
+        }
+
+        //nullsafe
+        if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->adminurl)) {
             return false;
         }
 
@@ -85,7 +91,7 @@ class Config extends dcNsProcess
                 dcPage::addSuccessNotice(
                     __('Configuration successfully updated.')
                 );
-                dcCore::app()->adminurl?->redirect(
+                dcCore::app()->adminurl->redirect(
                     'admin.plugins',
                     ['module' => My::id(), 'conf' => 1, 'redir' => dcCore::app()->admin->__get('list')->getRedir()]
                 );
@@ -102,6 +108,12 @@ class Config extends dcNsProcess
         if (!static::$init) {
             return;
         }
+
+        //nullsafe
+        if (is_null(dcCore::app()->blog)) {
+            return;
+        }
+
         $s = dcCore::app()->blog->settings->get(My::id());
 
         $fac_formats = json_decode($s->get('formats'), true);

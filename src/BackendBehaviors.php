@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\fac;
 
 use cursor;
 use ArrayObject;
-use dcAuth;
 use dcCore;
 use dcPage;
 use dcPostsActions;
@@ -79,6 +78,9 @@ class BackendBehaviors
      */
     public static function adminBlogPreferencesFormV2(dcSettings $blog_settings): void
     {
+        if (is_null(dcCore::app()->auth) || is_null(dcCore::app()->adminurl)) {
+            return;
+        }
         $lines               = '';
         $fac_public_tpltypes = json_decode($blog_settings->get(My::id())->get('public_tpltypes'), true);
         if (!is_array($fac_public_tpltypes)) {
@@ -168,7 +170,7 @@ class BackendBehaviors
      */
     public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, ?dcRecord $post): void
     {
-        if (!dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (is_null(dcCore::app()->blog) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
             return;
         }
 
@@ -231,7 +233,7 @@ class BackendBehaviors
      */
     public static function adminPostsActions(dcPostsActions $pa): void
     {
-        if (!dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->auth) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
             return;
         }
 
@@ -241,8 +243,8 @@ class BackendBehaviors
         );
 
         if (!dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-            dcAuth::PERMISSION_DELETE,
-            dcAuth::PERMISSION_CONTENT_ADMIN,
+            dcCore::app()->auth::PERMISSION_DELETE,
+            dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
         ]), dcCore::app()->blog->id)) {
             return;
         }
@@ -260,6 +262,9 @@ class BackendBehaviors
      */
     public static function callbackRemove(dcPostsActions $pa, ArrayObject $post): void
     {
+        if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->auth)) {
+            return;
+        }
         # No entry
         $posts_ids = $pa->getIDs();
         if (empty($posts_ids)) {
@@ -268,8 +273,8 @@ class BackendBehaviors
 
         # No right
         if (!dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-            dcAuth::PERMISSION_DELETE,
-            dcAuth::PERMISSION_CONTENT_ADMIN,
+            dcCore::app()->auth::PERMISSION_DELETE,
+            dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
         ]), dcCore::app()->blog->id)) {
             throw new Exception(__('No enough right'));
         }
@@ -291,6 +296,9 @@ class BackendBehaviors
      */
     public static function callbackAdd(dcPostsActions $pa, ArrayObject $post): void
     {
+        if (is_null(dcCore::app()->blog)) {
+            return;
+        }
         # No entry
         $posts_ids = $pa->getIDs();
         if (empty($posts_ids)) {
@@ -341,7 +349,7 @@ class BackendBehaviors
      */
     protected static function formFeed(string $url = '', string $format = ''): string
     {
-        if (!dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (is_null(dcCore::app()->blog) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
             return '';
         }
 
@@ -369,6 +377,9 @@ class BackendBehaviors
      */
     protected static function comboFac(): array
     {
+        if (is_null(dcCore::app()->blog)) {
+            return [];
+        }
         $formats = json_decode(dcCore::app()->blog->settings->get(My::id())->get('formats'), true);
         if (!is_array($formats) || empty($formats)) {
             return [];

@@ -35,6 +35,10 @@ class Install extends dcNsProcess
             return false;
         }
 
+        if (is_null(dcCore::app()->blog)) {
+            return false;
+        }
+
         // Module specs
         $mod_conf = [
             [

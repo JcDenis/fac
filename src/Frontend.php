@@ -33,24 +33,29 @@ class Frontend extends dcNsProcess
 
     public static function process(): bool
     {
-        if (!static::$init || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (!static::$init || is_null(dcCore::app()->blog) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
             return false;
         }
 
         dcCore::app()->addBehavior('publicEntryAfterContent', function (dcCore $core, context $_ctx): void {
-            # Not a post
+            //nullsafe
+            if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->ctx)) {
+                return;
+            }
+
+            // Not a post
             if (!dcCore::app()->ctx->exists('posts')) {
                 return;
             }
 
-            # Not in page to show
+            // Not in page to show
             $types = json_decode((string) dcCore::app()->blog->settings->get(My::id())->get('public_tpltypes'), true);
             if (!is_array($types)
              || !in_array(dcCore::app()->url->type, $types)) {
                 return;
             }
 
-            # Get related feed
+            // Get related feed
             $fac_url = dcCore::app()->meta->getMetadata([
                 'meta_type' => 'fac',
                 'post_id'   => dcCore::app()->ctx->__get('posts')->f('post_id'),
@@ -60,7 +65,7 @@ class Frontend extends dcNsProcess
                 return;
             }
 
-            # Get related format
+            // Get related format
             $fac_format = dcCore::app()->meta->getMetadata([
                 'meta_type' => 'facformat',
                 'post_id'   => dcCore::app()->ctx->__get('posts')->f('post_id'),
@@ -70,7 +75,7 @@ class Frontend extends dcNsProcess
                 return;
             }
 
-            # Get format info
+            // Get format info
             $default_format = [
                 'name'                   => 'default',
                 'dateformat'             => '',
@@ -98,7 +103,7 @@ class Frontend extends dcNsProcess
                 );
             }
 
-            # Read feed url
+            // Read feed url
             $cache = is_dir(DC_TPL_CACHE . '/fac') ? DC_TPL_CACHE . '/fac' : null;
 
             try {
@@ -107,12 +112,12 @@ class Frontend extends dcNsProcess
                 $feed = null;
             }
 
-            # No entries
+            // No entries
             if (!$feed) {
                 return;
             }
 
-            # Feed title
+            // Feed title
             $feedtitle = '';
             if ('' != dcCore::app()->blog->settings->get(My::id())->get('defaultfeedtitle')) {
                 $feedtitle = '<h3>' . Html::escapeHTML(
@@ -130,7 +135,7 @@ class Frontend extends dcNsProcess
                 ) . '</h3>';
             }
 
-            # Feed desc
+            // Feed desc
             $feeddesc = '';
             if (dcCore::app()->blog->settings->get(My::id())->get('showfeeddesc')
              && '' != $feed->description) {
@@ -140,12 +145,12 @@ class Frontend extends dcNsProcess
                 ) . '</p>';
             }
 
-            # Date format
+            // Date format
             $dateformat = '' != $format['dateformat'] ?
                 $format['dateformat'] :
                 dcCore::app()->blog->settings->get('system')->get('date_format') . ',' . dcCore::app()->blog->settings->get('system')->get('time_format');
 
-            # Enrties limit
+            // Enrties limit
             $entrieslimit = abs((int) $format['lineslimit']);
             $uselimit     = $entrieslimit > 0 ? true : false;
 
@@ -159,7 +164,7 @@ class Frontend extends dcNsProcess
                 # Format date
                 $date = Date::dt2str($dateformat, $item->pubdate);
 
-                # Entries title
+                // Entries title
                 $title = context::global_filters(
                     str_replace(
                         [
@@ -181,7 +186,7 @@ class Frontend extends dcNsProcess
                     ['remove_html', 'cut_string' => abs((int) $format['linestitlelength'])],
                 );
 
-                # Entries over title
+                // Entries over title
                 $overtitle = context::global_filters(
                     str_replace(
                         [
@@ -203,7 +208,7 @@ class Frontend extends dcNsProcess
                     ['remove_html', 'cut_string' => 350],
                 );
 
-                # Entries description
+                // Entries description
                 $description = '';
                 if ($format['showlinesdescription']
                  && '' != $item->description) {
@@ -214,7 +219,7 @@ class Frontend extends dcNsProcess
                     ) . '</dd>';
                 }
 
-                # Entries content
+                // Entries content
                 $content = '';
                 if ($format['showlinescontent']
                  && '' != $item->content) {
