@@ -17,10 +17,10 @@ namespace Dotclear\Plugin\fac;
 use context;
 use dcCore;
 use dcNsProcess;
+use Dotclear\Helper\Date;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Feed\Reader;
 use Exception;
-use dt;
-use feedReader;
 
 class Frontend extends dcNsProcess
 {
@@ -102,7 +102,7 @@ class Frontend extends dcNsProcess
             $cache = is_dir(DC_TPL_CACHE . '/fac') ? DC_TPL_CACHE . '/fac' : null;
 
             try {
-                $feed = feedReader::quickParse($fac_url->f('meta_id'), $cache);
+                $feed = Reader::quickParse($fac_url->f('meta_id'), $cache);
             } catch (Exception $e) {
                 $feed = null;
             }
@@ -157,7 +157,7 @@ class Frontend extends dcNsProcess
             $i = 0;
             foreach ($feed->items as $item) {
                 # Format date
-                $date = dt::dt2str($dateformat, $item->pubdate);
+                $date = Date::dt2str($dateformat, $item->pubdate);
 
                 # Entries title
                 $title = context::global_filters(
