@@ -1,3 +1,7 @@
+1.2.1 - 2023.04.23
+- require dotclear 2.26
+- use lastest dotclear namespace (database)
+
 1.2 - 2023.04.22
 - require dotclear 2.26
 - use lastest dotclear namespace

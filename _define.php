@@ -18,7 +18,7 @@ $this->registerModule(
     'Feed after content',
     'Add RSS/Atom feeds after entries content',
     'Jean-Christian Denis and Contributors',
-    '1.2',
+    '1.2.1',
     [
         'requires'    => [['core', '2.26']],
         'permissions' => dcCore::app()->auth->makePermissions([
