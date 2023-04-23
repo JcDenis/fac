@@ -14,13 +14,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\fac;
 
-use cursor;
 use ArrayObject;
 use dcCore;
 use dcPage;
 use dcPostsActions;
-use dcRecord;
 use dcSettings;
+use Dotclear\Database\{
+    Cursor,
+    MetaRecord
+};
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form\{
     Checkbox,
@@ -166,9 +168,9 @@ class BackendBehaviors
      *
      * @param  ArrayObject $main_items    Main items
      * @param  ArrayObject $sidebar_items Sidebar items
-     * @param  null|dcRecord      $post          Post record or null
+     * @param  null|MetaRecord      $post          Post record or null
      */
-    public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, ?dcRecord $post): void
+    public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, ?MetaRecord $post): void
     {
         if (is_null(dcCore::app()->blog) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
             return;
@@ -199,10 +201,10 @@ class BackendBehaviors
     /**
      * Save linked feed
      *
-     * @param  cursor $cur      Current post cursor
+     * @param  Cursor $cur      Current post Cursor
      * @param  integer $post_id Post id
      */
-    public static function adminAfterPostSave(cursor $cur, int $post_id): void
+    public static function adminAfterPostSave(Cursor $cur, int $post_id): void
     {
         if (!isset($_POST['fac_url'])
          || !isset($_POST['fac_format'])) {
