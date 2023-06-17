@@ -413,7 +413,7 @@ class BackendBehaviors
      * @param  integer $post_id Post id
      * @param  array|ArrayObject   $options Feed options
      */
-    protected static function addFeed(int $post_id, array|ArrayObject $options): void
+    protected static function addFeed(int $post_id, $options): void
     {
         if (empty($options['fac_url'])
          || empty($options['fac_format'])) {
