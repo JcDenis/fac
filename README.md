@@ -1,15 +1,14 @@
 # README
 
-[![Release](https://img.shields.io/github/v/release/JcDenis/fac)](https://github.com/JcDenis/fac/releases)
-[![Date](https://img.shields.io/github/release-date/JcDenis/fac)](https://github.com/JcDenis/fac/releases)
-[![Issues](https://img.shields.io/github/issues/JcDenis/fac)](https://github.com/JcDenis/fac/issues)
-[![Dotclear](https://img.shields.io/badge/dotclear-v2.26-blue.svg)](https://fr.dotclear.org/download)
-[![Dotaddict](https://img.shields.io/badge/dotaddict-official-green.svg)](https://plugins.dotaddict.org/dc2/details/fac)
-[![License](https://img.shields.io/github/license/JcDenis/fac)](https://github.com/JcDenis/fac/blob/master/LICENSE)
+[![Release](https://img.shields.io/badge/release-1.4-a2cbe9.svg)](https://git.dotclear.watch/JcDenis/fac/releases)
+[![Date](https://img.shields.io/badge/date-2023.08.12-c44d58.svg)](https://git.dotclear.watch/JcDenis/fac/releases)
+[![Dotclear](https://img.shields.io/badge/dotclear-v2.27-137bbb.svg)](https://fr.dotclear.org/download)
+[![Dotaddict](https://img.shields.io/badge/dotaddict-official-9ac123.svg)](https://plugins.dotaddict.org/dc2/details/fac)
+[![License](https://img.shields.io/github/license/JcDenis/fac)](https://git.dotclear.watch/JcDenis/fac/blob/master/LICENSE)
 
 ## WHAT IS FAC ?
 
-"Feed After Content" is a plugin for the open-source 
+_fac_ "Feed After Content" is a plugin for the open-source 
 web publishing software called Dotclear.
 
 It add options to the sidebar of post edition page 
@@ -17,17 +16,18 @@ to link en extenal feed to the bottom of an entry.
 
 ## REQUIREMENTS
 
- fac requires: 
+_fac_ requires: 
 
-  * superadmin to configure feeds formats
-  * admin permissions to configure plugin
-  * usage,contentadmin permissions to link feeds
-  * Dotclear 2.26
-  * A theme that contents behavior publicEntryAfterContent
+* superadmin to configure feeds formats
+* admin permissions to configure plugin
+* usage,contentadmin permissions to link feeds
+* Dotclear 2.27
+* PHP 7.4+
+* A theme that contents behavior publicEntryAfterContent
 
 ## USAGE
 
-First install fac, manualy from a zip package or from 
+First install _fac_, manualy from a zip package or from 
 Dotaddict repository. (See Dotclear's documentation to know how do this)
 
 Superadmin can configure, add, remove feeds formats on plugins configuration.
@@ -41,12 +41,12 @@ This plugins also supports pages from plugin "muppet".
 
 ## LINKS
 
- * License : [GNU GPL v2](https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html)
- * Source & contribution : [GitHub Page](https://github.com/JcDenis/fac)
- * Packages & details: [Dotaddict Page](https://plugins.dotaddict.org/dc2/details/fac)
+* License : [GNU GPL v2](https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html)
+* Source & contribution : [Gitea Page](https://git.dotclear.watch/JcDenis/fac) or [GitHub Page](https://github.com/JcDenis/fac)
+* Packages & details: [Gitea Page](https://git.dotclear.watch/JcDenis/fac/releases) or [Dotaddict Page](https://plugins.dotaddict.org/dc2/details/fac)
 
 ## CONTRIBUTORS
 
- * Jean-Christian Denis
+* Jean-Christian Denis
 
- You are welcome to contribute to this code.
+You are welcome to contribute to this code.
