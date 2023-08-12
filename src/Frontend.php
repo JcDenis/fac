@@ -16,24 +16,22 @@ namespace Dotclear\Plugin\fac;
 
 use context;
 use dcCore;
-use dcNsProcess;
+use Dotclear\Core\Process;
 use Dotclear\Helper\Date;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
 use Exception;
 
-class Frontend extends dcNsProcess
+class Frontend extends Process
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_RC_PATH');
-
-        return static::$init;
+        return self::status(My::checkContext(My::FRONTEND));
     }
 
     public static function process(): bool
     {
-        if (!static::$init || is_null(dcCore::app()->blog) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (!self::status() || is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
             return false;
         }
 
@@ -49,7 +47,7 @@ class Frontend extends dcNsProcess
             }
 
             // Not in page to show
-            $types = json_decode((string) dcCore::app()->blog->settings->get(My::id())->get('public_tpltypes'), true);
+            $types = json_decode((string) My::settings()->get('public_tpltypes'), true);
             if (!is_array($types)
              || !in_array(dcCore::app()->url->type, $types)) {
                 return;
@@ -91,7 +89,7 @@ class Frontend extends dcNsProcess
                 'linescontentnohtml'     => '1',
             ];
 
-            $formats = json_decode((string) dcCore::app()->blog->settings->get(My::id())->get('formats'), true);
+            $formats = json_decode((string) My::settings()->get('formats'), true);
             if (empty($formats)
              || !is_array($formats)
              || !isset($formats[$fac_format->f('meta_id')])) {
@@ -119,25 +117,25 @@ class Frontend extends dcNsProcess
 
             // Feed title
             $feedtitle = '';
-            if ('' != dcCore::app()->blog->settings->get(My::id())->get('defaultfeedtitle')) {
+            if ('' != My::settings()->get('defaultfeedtitle')) {
                 $feedtitle = '<h3>' . Html::escapeHTML(
                     empty($feed->title) ?
                     str_replace(
                         '%T',
                         __('a related feed'),
-                        dcCore::app()->blog->settings->get(My::id())->get('defaultfeedtitle')
+                        (string) My::settings()->get('defaultfeedtitle')
                     ) :
                     str_replace(
                         '%T',
                         $feed->title,
-                        dcCore::app()->blog->settings->get(My::id())->get('defaultfeedtitle')
+                        (string) My::settings()->get('defaultfeedtitle')
                     )
                 ) . '</h3>';
             }
 
             // Feed desc
             $feeddesc = '';
-            if (dcCore::app()->blog->settings->get(My::id())->get('showfeeddesc')
+            if (My::settings()->get('showfeeddesc')
              && '' != $feed->description) {
                 $feeddesc = '<p>' . context::global_filters(
                     $feed->description,

@@ -16,9 +16,12 @@ namespace Dotclear\Plugin\fac;
 
 use ArrayObject;
 use dcCore;
-use dcPage;
-use dcPostsActions;
 use dcSettings;
+use Dotclear\Core\Backend\{
+    Notices,
+    Page
+};
+use Dotclear\Core\Backend\Action\ActionsPosts;
 use Dotclear\Database\{
     Cursor,
     MetaRecord
@@ -61,7 +64,7 @@ class BackendBehaviors
             __('category pages') => 'category',
             __('entries feed')   => 'feed',
         ];
-        if (dcCore::app()->plugins->moduleExists('muppet') && class_exists('\muppet')) {
+        if (dcCore::app()->plugins->getDefine('muppet')->isDefined() && class_exists('\muppet')) {
             foreach (\muppet::getPostTypes() as $k => $v) {
                 $types[sprintf(
                     __('"%s" pages from extension muppet'),
@@ -80,9 +83,6 @@ class BackendBehaviors
      */
     public static function adminBlogPreferencesFormV2(dcSettings $blog_settings): void
     {
-        if (is_null(dcCore::app()->auth) || is_null(dcCore::app()->adminurl)) {
-            return;
-        }
         $lines               = '';
         $fac_public_tpltypes = json_decode($blog_settings->get(My::id())->get('public_tpltypes'), true);
         if (!is_array($fac_public_tpltypes)) {
@@ -96,15 +96,15 @@ class BackendBehaviors
         }
 
         echo
-        '<div class="fieldset"><h4 id="fac_params">Feed after content</h4>' .
+        '<div class="fieldset"><h4 id="' . My::id() . '_params">Feed after content</h4>' .
         '<p class="form-note">' .
         __('To add feed to an entry edit this entry and put in sidebar the url of the feed and select a format.') .
         '</p>';
         if (dcCore::app()->auth->isSuperAdmin()) {
-            echo '<p><a href="' . dcCore::app()->adminurl->get('admin.plugins', [
+            echo '<p><a href="' . dcCore::app()->admin->url->get('admin.plugins', [
                 'module' => My::id(),
                 'conf'   => 1,
-                'redir'  => dcCore::app()->adminurl->get('admin.blog.pref') . '#fac_params',
+                'redir'  => dcCore::app()->admin->url->get('admin.blog.pref') . '#params.' . My::id() . '_params',
             ]) . '">' . __('Configure formats') . '</a></p>';
         }
 
@@ -160,7 +160,7 @@ class BackendBehaviors
      */
     public static function adminPostHeaders(): string
     {
-        return dcPage::jsModuleLoad(My::id() . '/js/backend.js');
+        return My::jsLoad('backend');
     }
 
     /**
@@ -172,7 +172,7 @@ class BackendBehaviors
      */
     public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, ?MetaRecord $post): void
     {
-        if (is_null(dcCore::app()->blog) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
             return;
         }
 
@@ -231,11 +231,11 @@ class BackendBehaviors
     /**
      * Add actions to posts page combo
      *
-     * @param  dcPostsActions $pa   dcPostsActionsPage instance
+     * @param  ActionsPosts $pa   ActionsPostsPage instance
      */
-    public static function adminPostsActions(dcPostsActions $pa): void
+    public static function adminPostsActions(ActionsPosts $pa): void
     {
-        if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->auth) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
             return;
         }
 
@@ -259,12 +259,12 @@ class BackendBehaviors
     /**
      * Posts actions callback to remove linked feed
      *
-     * @param  dcPostsActions $pa   dcPostsActions instance
+     * @param  ActionsPosts $pa   ActionsPosts instance
      * @param  ArrayObject        $post _POST actions
      */
-    public static function callbackRemove(dcPostsActions $pa, ArrayObject $post): void
+    public static function callbackRemove(ActionsPosts $pa, ArrayObject $post): void
     {
-        if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->auth)) {
+        if (is_null(dcCore::app()->blog)) {
             return;
         }
         # No entry
@@ -286,17 +286,17 @@ class BackendBehaviors
             self::delFeed($post_id);
         }
 
-        dcPage::addSuccessNotice(__('Linked feed deleted.'));
+        Notices::addSuccessNotice(__('Linked feed deleted.'));
         $pa->redirect(true);
     }
 
     /**
      * Posts actions callback to add linked feed
      *
-     * @param  dcPostsActions $pa   dcPostsActions instance
+     * @param  ActionsPosts $pa   ActionsPosts instance
      * @param  ArrayObject        $post _POST actions
      */
-    public static function callbackAdd(dcPostsActions $pa, ArrayObject $post): void
+    public static function callbackAdd(ActionsPosts $pa, ArrayObject $post): void
     {
         if (is_null(dcCore::app()->blog)) {
             return;
@@ -315,13 +315,13 @@ class BackendBehaviors
                 self::addFeed($post_id, $post);
             }
 
-            dcPage::addSuccessNotice(__('Linked feed added.'));
+            Notices::addSuccessNotice(__('Linked feed added.'));
             $pa->redirect(true);
 
-        # Display form
+            # Display form
         } else {
             $pa->beginPage(
-                dcPage::breadcrumb([
+                Page::breadcrumb([
                     Html::escapeHTML(dcCore::app()->blog->name) => '',
                     $pa->getCallerTitle()                       => $pa->getRedirection(true),
                     __('Linked feed to this selection')         => '',
@@ -351,7 +351,7 @@ class BackendBehaviors
      */
     protected static function formFeed(string $url = '', string $format = ''): string
     {
-        if (is_null(dcCore::app()->blog) || !dcCore::app()->blog->settings->get(My::id())->get('active')) {
+        if (is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
             return '';
         }
 
@@ -382,7 +382,7 @@ class BackendBehaviors
         if (is_null(dcCore::app()->blog)) {
             return [];
         }
-        $formats = json_decode(dcCore::app()->blog->settings->get(My::id())->get('formats'), true);
+        $formats = json_decode((string) My::settings()->get('formats'), true);
         if (!is_array($formats) || empty($formats)) {
             return [];
         }

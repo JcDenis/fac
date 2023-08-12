@@ -15,8 +15,11 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\fac;
 
 use dcCore;
-use dcPage;
-use dcNsProcess;
+use Dotclear\Core\Process;
+use Dotclear\Core\Backend\{
+    Notices,
+    Page
+};
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form\{
     Checkbox,
@@ -30,25 +33,21 @@ use Dotclear\Helper\Html\Form\{
 };
 use Exception;
 
-class Config extends dcNsProcess
+class Config extends Process
 {
     public static function init(): bool
     {
-        static::$init == defined('DC_CONTEXT_ADMIN')
-            && !is_null(dcCore::app()->auth)
-            && dcCore::app()->auth->isSuperAdmin();
-
-        return static::$init;
+        return self::status(My::checkContext(My::CONFIG));
     }
 
     public static function process(): bool
     {
-        if (!static::$init) {
+        if (!self::status()) {
             return false;
         }
 
         //nullsafe
-        if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->adminurl)) {
+        if (is_null(dcCore::app()->blog)) {
             return false;
         }
 
@@ -56,7 +55,7 @@ class Config extends dcNsProcess
             dcCore::app()->admin->__get('list')->getURL() . '#plugins' : $_REQUEST['redir'];
 
         # -- Get settings --
-        $s = dcCore::app()->blog->settings->get(My::id());
+        $s = My::settings();
 
         $fac_formats = json_decode($s->get('formats'), true);
 
@@ -88,10 +87,10 @@ class Config extends dcNsProcess
 
                 dcCore::app()->blog->triggerBlog();
 
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     __('Configuration successfully updated.')
                 );
-                dcCore::app()->adminurl->redirect(
+                dcCore::app()->admin->url->redirect(
                     'admin.plugins',
                     ['module' => My::id(), 'conf' => 1, 'redir' => dcCore::app()->admin->__get('list')->getRedir()]
                 );
@@ -105,16 +104,11 @@ class Config extends dcNsProcess
 
     public static function render(): void
     {
-        if (!static::$init) {
+        if (!self::status()) {
             return;
         }
 
-        //nullsafe
-        if (is_null(dcCore::app()->blog)) {
-            return;
-        }
-
-        $s = dcCore::app()->blog->settings->get(My::id());
+        $s = My::settings();
 
         $fac_formats = json_decode($s->get('formats'), true);
 
@@ -148,7 +142,7 @@ class Config extends dcNsProcess
 
         echo '
         <div class="fieldset">
-        <h4>' . __('Informations') . '</h4>
+        <h4 id="' . My::id() . 'Params">' . __('Informations') . '</h4>
 
         <div class="two-boxes">
 
@@ -176,7 +170,7 @@ class Config extends dcNsProcess
 
         </div>';
 
-        dcPage::helpBlock('fac');
+        Page::helpBlock('fac');
     }
 
     private static function displayFacFormat(string $title, string $uid, array $format): void
