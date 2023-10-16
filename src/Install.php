@@ -118,7 +118,7 @@ class Install extends Process
     private static function growUp(): void
     {
         // version < 1.0 : upgrade settings id and ns and array
-        $current = App::version()()->getVersion(My::id());
+        $current = App::version()->getVersion(My::id());
         if ($current && version_compare($current, '1.0', '<')) {
             $record = App::con()->select(
                 'SELECT * FROM ' . App::con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
