@@ -1,22 +1,11 @@
 <?php
-/**
- * @brief fac, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\fac;
 
 use ArrayObject;
-use dcCore;
-use dcSettings;
+use Dotclear\App;
 use Dotclear\Core\Backend\{
     Notices,
     Page
@@ -40,12 +29,15 @@ use Dotclear\Helper\Html\Form\{
     Submit,
     Text
 };
+use Dotclear\Interface\Core\BlogSettingsInterface;
 use Exception;
 
 /**
- * @ingroup DC_PLUGIN_FAC
- * @brief Linked feed to entries - admin methods.
- * @since 2.6
+ * @brief       fac backend behaviors class.
+ * @ingroup     fac
+ *
+ * @author      Jean-Christian Denis (author)
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
 class BackendBehaviors
 {
@@ -64,7 +56,7 @@ class BackendBehaviors
             __('category pages') => 'category',
             __('entries feed')   => 'feed',
         ];
-        if (dcCore::app()->plugins->getDefine('muppet')->isDefined() && class_exists('\muppet')) {
+        if (App::plugins()->getDefine('muppet')->isDefined() && class_exists('\muppet')) {
             foreach (\muppet::getPostTypes() as $k => $v) {
                 $types[sprintf(
                     __('"%s" pages from extension muppet'),
@@ -81,7 +73,7 @@ class BackendBehaviors
      *
      * @param  dcSettings   $blog_settings  dcSettings instance
      */
-    public static function adminBlogPreferencesFormV2(dcSettings $blog_settings): void
+    public static function adminBlogPreferencesFormV2(BlogSettingsInterface $blog_settings): void
     {
         $lines               = '';
         $fac_public_tpltypes = json_decode($blog_settings->get(My::id())->get('public_tpltypes'), true);
@@ -100,11 +92,11 @@ class BackendBehaviors
         '<p class="form-note">' .
         __('To add feed to an entry edit this entry and put in sidebar the url of the feed and select a format.') .
         '</p>';
-        if (dcCore::app()->auth->isSuperAdmin()) {
-            echo '<p><a href="' . dcCore::app()->admin->url->get('admin.plugins', [
+        if (App::auth()->isSuperAdmin()) {
+            echo '<p><a href="' . App::backend()->url()->get('admin.plugins', [
                 'module' => My::id(),
                 'conf'   => 1,
-                'redir'  => dcCore::app()->admin->url->get('admin.blog.pref') . '#params.' . My::id() . '_params',
+                'redir'  => App::backend()->url()->get('admin.blog.pref') . '#params.' . My::id() . '_params',
             ]) . '">' . __('Configure formats') . '</a></p>';
         }
 
@@ -145,7 +137,7 @@ class BackendBehaviors
      *
      * @param  dcSettings   $blog_settings  dcSettings instance
      */
-    public static function adminBeforeBlogSettingsUpdate(dcSettings $blog_settings): void
+    public static function adminBeforeBlogSettingsUpdate(BlogSettingsInterface $blog_settings): void
     {
         $blog_settings->get(My::id())->put('active', !empty($_POST['fac_active']));
         $blog_settings->get(My::id())->put('public_tpltypes', json_encode($_POST['fac_public_tpltypes']));
@@ -172,21 +164,21 @@ class BackendBehaviors
      */
     public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, ?MetaRecord $post): void
     {
-        if (is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
+        if (!App::blog()->isDefined() || !My::settings()->get('active')) {
             return;
         }
 
         # Get existing linked feed
         $fac_url = $fac_format = '';
         if ($post) {
-            $rs = dcCore::app()->meta->getMetadata([
+            $rs = App::meta()->getMetadata([
                 'meta_type' => 'fac',
                 'post_id'   => $post->f('post_id'),
                 'limit'     => 1,
             ]);
             $fac_url = $rs->isEmpty() ? '' : $rs->f('meta_id');
 
-            $rs = dcCore::app()->meta->getMetadata([
+            $rs = App::meta()->getMetadata([
                 'meta_type' => 'facformat',
                 'post_id'   => $post->f('post_id'),
                 'limit'     => 1,
@@ -235,24 +227,24 @@ class BackendBehaviors
      */
     public static function adminPostsActions(ActionsPosts $pa): void
     {
-        if (is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
+        if (!App::blog()->isDefined() || !My::settings()->get('active')) {
             return;
         }
 
         $pa->addAction(
             [__('Linked feed') => [__('Add feed') => 'fac_add']],
-            [self::class, 'callbackAdd']
+            self::callbackAdd(...)
         );
 
-        if (!dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-            dcCore::app()->auth::PERMISSION_DELETE,
-            dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
-        ]), dcCore::app()->blog->id)) {
+        if (!App::auth()->check(App::auth()->makePermissions([
+            App::auth()::PERMISSION_DELETE,
+            App::auth()::PERMISSION_CONTENT_ADMIN,
+        ]), App::blog()->id())) {
             return;
         }
         $pa->addAction(
             [__('Linked feed') => [__('Remove feed') => 'fac_remove']],
-            [self::class, 'callbackRemove']
+            self::callbackRemove(...)
         );
     }
 
@@ -264,7 +256,7 @@ class BackendBehaviors
      */
     public static function callbackRemove(ActionsPosts $pa, ArrayObject $post): void
     {
-        if (is_null(dcCore::app()->blog)) {
+        if (!App::blog()->isDefined()) {
             return;
         }
         # No entry
@@ -274,10 +266,10 @@ class BackendBehaviors
         }
 
         # No right
-        if (!dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-            dcCore::app()->auth::PERMISSION_DELETE,
-            dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
-        ]), dcCore::app()->blog->id)) {
+        if (!App::auth()->check(App::auth()->makePermissions([
+            App::auth()::PERMISSION_DELETE,
+            App::auth()::PERMISSION_CONTENT_ADMIN,
+        ]), App::blog()->id())) {
             throw new Exception(__('No enough right'));
         }
 
@@ -298,7 +290,7 @@ class BackendBehaviors
      */
     public static function callbackAdd(ActionsPosts $pa, ArrayObject $post): void
     {
-        if (is_null(dcCore::app()->blog)) {
+        if (!App::blog()->isDefined()) {
             return;
         }
         # No entry
@@ -322,9 +314,9 @@ class BackendBehaviors
         } else {
             $pa->beginPage(
                 Page::breadcrumb([
-                    Html::escapeHTML(dcCore::app()->blog->name) => '',
-                    $pa->getCallerTitle()                       => $pa->getRedirection(true),
-                    __('Linked feed to this selection')         => '',
+                    Html::escapeHTML(App::blog()->name()) => '',
+                    $pa->getCallerTitle()                 => $pa->getRedirection(true),
+                    __('Linked feed to this selection')   => '',
                 ])
             );
 
@@ -332,7 +324,8 @@ class BackendBehaviors
             (new Form('fac_form'))->action($pa->getURI())->method('post')->fields([
                 (new Text('', $pa->getCheckboxes() . self::formFeed())),
                 (new Para())->items([
-                    (new Text('', dcCore::app()->formNonce() . $pa->getHiddenFields())),
+                    App::nonce()->formNonce(),
+                    ... $pa->giddenFields(),
                     (new Hidden(['action'], 'fac_add')),
                     (new Submit(['save']))->value(__('Save')),
                 ]),
@@ -351,7 +344,7 @@ class BackendBehaviors
      */
     protected static function formFeed(string $url = '', string $format = ''): string
     {
-        if (is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
+        if (!App::blog()->isDefined() || !My::settings()->get('active')) {
             return '';
         }
 
@@ -379,7 +372,7 @@ class BackendBehaviors
      */
     protected static function comboFac(): array
     {
-        if (is_null(dcCore::app()->blog)) {
+        if (!App::blog()->isDefined()) {
             return [];
         }
         $formats = json_decode((string) My::settings()->get('formats'), true);
@@ -403,8 +396,8 @@ class BackendBehaviors
     protected static function delFeed(int $post_id): void
     {
         $post_id = (int) $post_id;
-        dcCore::app()->meta->delPostMeta($post_id, 'fac');
-        dcCore::app()->meta->delPostMeta($post_id, 'facformat');
+        App::meta()->delPostMeta($post_id, 'fac');
+        App::meta()->delPostMeta($post_id, 'facformat');
     }
 
     /**
@@ -422,12 +415,12 @@ class BackendBehaviors
 
         $post_id = (int) $post_id;
 
-        dcCore::app()->meta->setPostMeta(
+        App::meta()->setPostMeta(
             $post_id,
             'fac',
             $options['fac_url']
         );
-        dcCore::app()->meta->setPostMeta(
+        App::meta()->setPostMeta(
             $post_id,
             'facformat',
             $options['fac_format']

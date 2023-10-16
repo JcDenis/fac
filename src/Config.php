@@ -1,20 +1,10 @@
 <?php
-/**
- * @brief fac, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\fac;
 
-use dcCore;
+use Dotclear\App;
 use Dotclear\Core\Process;
 use Dotclear\Core\Backend\{
     Notices,
@@ -33,6 +23,13 @@ use Dotclear\Helper\Html\Form\{
 };
 use Exception;
 
+/**
+ * @brief       fac configuration class.
+ * @ingroup     fac
+ *
+ * @author      Jean-Christian Denis (author)
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
+ */
 class Config extends Process
 {
     public static function init(): bool
@@ -46,13 +43,12 @@ class Config extends Process
             return false;
         }
 
-        //nullsafe
-        if (is_null(dcCore::app()->blog)) {
+        if (!App::blog()->isDefined()) {
             return false;
         }
 
         $redir = empty($_REQUEST['redir']) ?
-            dcCore::app()->admin->__get('list')->getURL() . '#plugins' : $_REQUEST['redir'];
+            App::backend()->__get('list')->getURL() . '#plugins' : $_REQUEST['redir'];
 
         # -- Get settings --
         $s = My::settings();
@@ -85,17 +81,17 @@ class Config extends Process
                     true
                 );
 
-                dcCore::app()->blog->triggerBlog();
+                App::blog()->triggerBlog();
 
                 Notices::addSuccessNotice(
                     __('Configuration successfully updated.')
                 );
-                dcCore::app()->admin->url->redirect(
+                App::backend()->url()->redirect(
                     'admin.plugins',
-                    ['module' => My::id(), 'conf' => 1, 'redir' => dcCore::app()->admin->__get('list')->getRedir()]
+                    ['module' => My::id(), 'conf' => 1, 'redir' => App::backend()->__get('list')->getRedir()]
                 );
             } catch (Exception $e) {
-                dcCore::app()->error->add($e->getMessage());
+                App::error()->add($e->getMessage());
             }
         }
 

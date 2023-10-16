@@ -1,24 +1,20 @@
 <?php
-/**
- * @brief fac, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\fac;
 
-use dcCore;
-use dcNamespace;
+use Dotclear\App;
 use Dotclear\Core\Process;
 use Exception;
 
+/**
+ * @brief       fac installation class.
+ * @ingroup     fac
+ *
+ * @author      Jean-Christian Denis (author)
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
+ */
 class Install extends Process
 {
     public static function init(): bool
@@ -113,7 +109,7 @@ class Install extends Process
                 );
             }
         } catch (Exception $e) {
-            dcCore::app()->error->add($e->getMessage());
+            App::error()->add($e->getMessage());
         }
 
         return true;
@@ -122,15 +118,15 @@ class Install extends Process
     private static function growUp(): void
     {
         // version < 1.0 : upgrade settings id and ns and array
-        $current = dcCore::app()->getVersion(My::id());
+        $current = App::version()()->getVersion(My::id());
         if ($current && version_compare($current, '1.0', '<')) {
-            $record = dcCore::app()->con->select(
-                'SELECT * FROM ' . dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME . ' ' .
+            $record = App::con()->select(
+                'SELECT * FROM ' . App::con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
                 "WHERE setting_ns = 'fac' "
             );
             while ($record->fetch()) {
                 if (preg_match('/^fac_(.*?)$/', $record->f('setting_id'), $match)) {
-                    $cur = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME);
+                    $cur = App::blogWorkspace()->openBlogWorkspaceCursor();
                     if (in_array($record->f('setting_id'), ['fac_public_tpltypes', 'fac_formats'])) {
                         $cur->setField('setting_value', json_encode(@unserialize($record->f('setting_value'))));
                     }
@@ -138,7 +134,7 @@ class Install extends Process
                     $cur->SetField('setting_ns', My::id());
                     $cur->update(
                         "WHERE setting_id = '" . $record->f('setting_id') . "' and setting_ns = 'fac' " .
-                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . dcCore::app()->con->escapeStr($record->f('blog_id')) . "' "))
+                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . App::con()->escapeStr($record->f('blog_id')) . "' "))
                     );
                 }
             }

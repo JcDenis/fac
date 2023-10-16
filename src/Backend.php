@@ -1,22 +1,19 @@
 <?php
-/**
- * @brief fac, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\fac;
 
-use dcCore;
+use Dotclear\App;
 use Dotclear\Core\Process;
 
+/**
+ * @brief       fac backend class.
+ * @ingroup     fac
+ *
+ * @author      Jean-Christian Denis (author)
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
+ */
 class Backend extends Process
 {
     public static function init(): bool
@@ -30,15 +27,15 @@ class Backend extends Process
             return false;
         }
 
-        dcCore::app()->addBehaviors([
-            'adminBlogPreferencesFormV2'    => [BackendBehaviors::class, 'adminBlogPreferencesFormV2'],
-            'adminBeforeBlogSettingsUpdate' => [BackendBehaviors::class, 'adminBeforeBlogSettingsUpdate'],
-            'adminPostHeaders'              => [BackendBehaviors::class, 'adminPostHeaders'],
-            'adminPostFormItems'            => [BackendBehaviors::class, 'adminPostFormItems'],
-            'adminAfterPostCreate'          => [BackendBehaviors::class, 'adminAfterPostSave'],
-            'adminAfterPostUpdate'          => [BackendBehaviors::class, 'adminAfterPostSave'],
-            'adminBeforePostDelete'         => [BackendBehaviors::class, 'adminBeforePostDelete'],
-            'adminPostsActions'             => [BackendBehaviors::class, 'adminPostsActions'],
+        App::behavior()->addBehaviors([
+            'adminBlogPreferencesFormV2'    => BackendBehaviors::adminBlogPreferencesFormV2(...),
+            'adminBeforeBlogSettingsUpdate' => BackendBehaviors::adminBeforeBlogSettingsUpdate(...),
+            'adminPostHeaders'              => BackendBehaviors::adminPostHeaders(...),
+            'adminPostFormItems'            => BackendBehaviors::adminPostFormItems(...),
+            'adminAfterPostCreate'          => BackendBehaviors::adminAfterPostSave(...),
+            'adminAfterPostUpdate'          => BackendBehaviors::adminAfterPostSave(...),
+            'adminBeforePostDelete'         => BackendBehaviors::adminBeforePostDelete(...),
+            'adminPostsActions'             => BackendBehaviors::adminPostsActions(...),
         ]);
 
         return true;

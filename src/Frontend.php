@@ -1,27 +1,24 @@
 <?php
-/**
- * @brief fac, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\fac;
 
-use context;
-use dcCore;
+use Dotclear\App;
+use Dotclear\Core\Frontend\Ctx;
 use Dotclear\Core\Process;
 use Dotclear\Helper\Date;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
 use Exception;
 
+/**
+ * @brief       fac frontend class.
+ * @ingroup     fac
+ *
+ * @author      Jean-Christian Denis (author)
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
+ */
 class Frontend extends Process
 {
     public static function init(): bool
@@ -31,32 +28,31 @@ class Frontend extends Process
 
     public static function process(): bool
     {
-        if (!self::status() || is_null(dcCore::app()->blog) || !My::settings()->get('active')) {
+        if (!self::status() || !App::blog()->isDefined() || !My::settings()->get('active')) {
             return false;
         }
 
-        dcCore::app()->addBehavior('publicEntryAfterContent', function (dcCore $core, context $_ctx): void {
-            //nullsafe
-            if (is_null(dcCore::app()->blog) || is_null(dcCore::app()->ctx)) {
+        App::behavior()->addBehavior('publicEntryAfterContent', function ($___, Ctx $_ctx): void {
+            if (!App::blog()->isDefined()) {
                 return;
             }
 
             // Not a post
-            if (!dcCore::app()->ctx->exists('posts')) {
+            if (!App::frontend()->context()->exists('posts')) {
                 return;
             }
 
             // Not in page to show
             $types = json_decode((string) My::settings()->get('public_tpltypes'), true);
             if (!is_array($types)
-             || !in_array(dcCore::app()->url->type, $types)) {
+             || !in_array(App::url()->type, $types)) {
                 return;
             }
 
             // Get related feed
-            $fac_url = dcCore::app()->meta->getMetadata([
+            $fac_url = App::meta()->getMetadata([
                 'meta_type' => 'fac',
-                'post_id'   => dcCore::app()->ctx->__get('posts')->f('post_id'),
+                'post_id'   => App::frontend()->context()->__get('posts')->f('post_id'),
                 'limit'     => 1,
             ]);
             if ($fac_url->isEmpty()) {
@@ -64,9 +60,9 @@ class Frontend extends Process
             }
 
             // Get related format
-            $fac_format = dcCore::app()->meta->getMetadata([
+            $fac_format = App::meta()->getMetadata([
                 'meta_type' => 'facformat',
-                'post_id'   => dcCore::app()->ctx->__get('posts')->f('post_id'),
+                'post_id'   => App::frontend()->context()->__get('posts')->f('post_id'),
                 'limit'     => 1,
             ]);
             if ($fac_format->isEmpty()) {
@@ -102,7 +98,7 @@ class Frontend extends Process
             }
 
             // Read feed url
-            $cache = is_dir(DC_TPL_CACHE . '/fac') ? DC_TPL_CACHE . '/fac' : null;
+            $cache = is_dir(App::config()->cacheRoot() . '/fac') ? App::config()->cacheRoot() . '/fac' : null;
 
             try {
                 $feed = Reader::quickParse($fac_url->f('meta_id'), $cache);
@@ -137,7 +133,7 @@ class Frontend extends Process
             $feeddesc = '';
             if (My::settings()->get('showfeeddesc')
              && '' != $feed->description) {
-                $feeddesc = '<p>' . context::global_filters(
+                $feeddesc = '<p>' . $_ctx::global_filters(
                     $feed->description,
                     ['encode_xml', 'remove_html']
                 ) . '</p>';
@@ -146,7 +142,7 @@ class Frontend extends Process
             // Date format
             $dateformat = '' != $format['dateformat'] ?
                 $format['dateformat'] :
-                dcCore::app()->blog->settings->get('system')->get('date_format') . ',' . dcCore::app()->blog->settings->get('system')->get('time_format');
+                App::blog()->settings()->get('system')->get('date_format') . ',' . App::blog()->settings()->get('system')->get('time_format');
 
             // Enrties limit
             $entrieslimit = abs((int) $format['lineslimit']);
@@ -163,7 +159,7 @@ class Frontend extends Process
                 $date = Date::dt2str($dateformat, $item->pubdate);
 
                 // Entries title
-                $title = context::global_filters(
+                $title = $_ctx::global_filters(
                     str_replace(
                         [
                             '%D',
@@ -185,7 +181,7 @@ class Frontend extends Process
                 );
 
                 // Entries over title
-                $overtitle = context::global_filters(
+                $overtitle = $_ctx::global_filters(
                     str_replace(
                         [
                             '%D',
@@ -211,7 +207,7 @@ class Frontend extends Process
                 if ($format['showlinesdescription']
                  && '' != $item->description) {
                     $description = '<dd>' .
-                    context::global_filters(
+                    $_ctx::global_filters(
                         $item->description,
                         ['remove_html' => (int) $format['linesdescriptionnohtml'], 'cut_string' => abs((int) $format['linesdescriptionlength'])]
                     ) . '</dd>';
@@ -222,7 +218,7 @@ class Frontend extends Process
                 if ($format['showlinescontent']
                  && '' != $item->content) {
                     $content = '<dd>' .
-                    context::global_filters(
+                    $_ctx::global_filters(
                         $item->content,
                         ['remove_html' => (int) $format['linescontentnohtml'], 'cut_string' => abs((int) $format['linescontentlength'])]
                     ) . '</dd>';
