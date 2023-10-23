@@ -5,7 +5,7 @@
     <version>1.4</version>
     <author>Jean-Christian Denis and Contributors</author>
     <desc>Add RSS/Atom feeds after entries content</desc>
-    <file>https://github.com/JcDenis/fac/releases/download/v1.4/plugin-fac.zip</file>
+    <file>https://git.dotclear.watch/JcDenis/fac/releases/download/v1.4/plugin-fac.zip</file>
     <da:dcmin>2.27</da:dcmin>
     <da:details>https://git.dotclear.watch/JcDenis/fac/src/branch/master/README.md</da:details>
     <da:support>https://git.dotclear.watch/JcDenis/fac/issues</da:support>
