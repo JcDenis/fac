@@ -114,7 +114,7 @@ class BackendBehaviors
                 // defaultfeedtitle
                 (new Para())->items([
                     (new Label(__('Default title')))->for('fac_defaultfeedtitle'),
-                    (new Input('fac_defaultfeedtitle'))->size(70)->maxlenght(255)->value((string) $blog_settings->get(My::id())->get('defaultfeedtitle')),
+                    (new Input('fac_defaultfeedtitle'))->size(70)->maxlength(255)->value((string) $blog_settings->get(My::id())->get('defaultfeedtitle')),
                 ]),
                 (new Note())->text(__('Use %T to insert title of feed.'))->class('form-note'),
                 // showfeeddesc
@@ -354,7 +354,7 @@ class BackendBehaviors
             // fac_url
             (new Para())->items([
                 (new Label(__('Feed URL:')))->for('fac_url')->class('required'),
-                (new Input('fac_url'))->size(60)->maxlenght(255)->value($url),
+                (new Input('fac_url'))->size(60)->maxlength(255)->value($url),
             ]),
             // fac_format
             (new Para())->items([

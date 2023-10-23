@@ -182,7 +182,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][name]',
                         'fac_formats_' . $uid . '_name',
-                    ]))->value(empty($format['name']) ? '' : $format['name'])->size(20)->maxlenght(255)->class('maximal'),
+                    ]))->value(empty($format['name']) ? '' : $format['name'])->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(__('In order to remove a format, leave its name empty.'))->class('form-note'),
                 // dateformat
@@ -191,7 +191,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][dateformat]',
                         'fac_formats_' . $uid . '_dateformat',
-                    ]))->value(empty($format['dateformat']) ? '' : $format['dateformat'])->size(20)->maxlenght(255)->class('maximal'),
+                    ]))->value(empty($format['dateformat']) ? '' : $format['dateformat'])->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(__('Use date format of Dotclear or leave empty to use default date format of blog.'))->class('form-note'),
                 // dateformat //todo: use Number
@@ -200,7 +200,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][lineslimit]',
                         'fac_formats_' . $uid . '_lineslimit',
-                    ]))->value(empty($format['lineslimit']) ? '' : $format['lineslimit'])->size(4)->maxlenght(5),
+                    ]))->value(empty($format['lineslimit']) ? '' : $format['lineslimit'])->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),
@@ -212,7 +212,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][linestitletext]',
                         'fac_formats_' . $uid . '_linestitletext',
-                    ]))->value(empty($format['linestitletext']) ? '' : $format['linestitletext'])->size(20)->maxlenght(255)->class('maximal'),
+                    ]))->value(empty($format['linestitletext']) ? '' : $format['linestitletext'])->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(
                     __('Format can be:') .
@@ -228,7 +228,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][linestitleover]',
                         'fac_formats_' . $uid . '_linestitleover',
-                    ]))->value(empty($format['linestitleover']) ? '' : $format['linestitleover'])->size(20)->maxlenght(255)->class('maximal'),
+                    ]))->value(empty($format['linestitleover']) ? '' : $format['linestitleover'])->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(
                     __('Format can be:') .
@@ -244,7 +244,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][linestitlelength]',
                         'fac_formats_' . $uid . '_linestitlelength',
-                    ]))->value(empty($format['linestitlelength']) ? '' : $format['linestitlelength'])->size(4)->maxlenght(5),
+                    ]))->value(empty($format['linestitlelength']) ? '' : $format['linestitlelength'])->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),
@@ -272,7 +272,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][linesdescriptionlength]',
                         'fac_formats_' . $uid . '_linesdescriptionlength',
-                    ]))->value(empty($format['linesdescriptionlength']) ? '' : $format['linesdescriptionlength'])->size(4)->maxlenght(5),
+                    ]))->value(empty($format['linesdescriptionlength']) ? '' : $format['linesdescriptionlength'])->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),
@@ -300,7 +300,7 @@ class Config extends Process
                     (new Input([
                         'fac_formats[' . $uid . '][linescontentlength]',
                         'fac_formats_' . $uid . '_linescontentlength',
-                    ]))->value(empty($format['linescontentlength']) ? '' : $format['linescontentlength'])->size(4)->maxlenght(5),
+                    ]))->value(empty($format['linescontentlength']) ? '' : $format['linescontentlength'])->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),
