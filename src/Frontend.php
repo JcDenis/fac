@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\fac;
 
 use Dotclear\App;
-use Dotclear\Core\Frontend\Ctx;
 use Dotclear\Core\Process;
 use Dotclear\Helper\Date;
 use Dotclear\Helper\Html\Html;
@@ -32,7 +31,7 @@ class Frontend extends Process
             return false;
         }
 
-        App::behavior()->addBehavior('publicEntryAfterContent', function ($___, Ctx $_ctx): void {
+        App::behavior()->addBehavior('publicEntryAfterContent', function ($___, $_____): void {
             if (!App::blog()->isDefined()) {
                 return;
             }
@@ -133,7 +132,7 @@ class Frontend extends Process
             $feeddesc = '';
             if (My::settings()->get('showfeeddesc')
              && '' != $feed->description) {
-                $feeddesc = '<p>' . $_ctx::global_filters(
+                $feeddesc = '<p>' . App::frontend()->context()->global_filters(
                     $feed->description,
                     ['encode_xml', 'remove_html']
                 ) . '</p>';
@@ -159,7 +158,7 @@ class Frontend extends Process
                 $date = Date::dt2str($dateformat, $item->pubdate);
 
                 // Entries title
-                $title = $_ctx::global_filters(
+                $title = App::frontend()->context()->global_filters(
                     str_replace(
                         [
                             '%D',
@@ -175,13 +174,13 @@ class Frontend extends Process
                             $item->description,
                             $item->content,
                         ],
-                        $format['linestitletext']
+                        (string) $format['linestitletext']
                     ),
                     ['remove_html', 'cut_string' => abs((int) $format['linestitlelength'])],
                 );
 
                 // Entries over title
-                $overtitle = $_ctx::global_filters(
+                $overtitle = App::frontend()->context()->global_filters(
                     str_replace(
                         [
                             '%D',
@@ -197,7 +196,7 @@ class Frontend extends Process
                             $item->description,
                             $item->content,
                         ],
-                        $format['linestitleover']
+                        (string) $format['linestitleover']
                     ),
                     ['remove_html', 'cut_string' => 350],
                 );
@@ -207,7 +206,7 @@ class Frontend extends Process
                 if ($format['showlinesdescription']
                  && '' != $item->description) {
                     $description = '<dd>' .
-                    $_ctx::global_filters(
+                    App::frontend()->context()->global_filters(
                         $item->description,
                         ['remove_html' => (int) $format['linesdescriptionnohtml'], 'cut_string' => abs((int) $format['linesdescriptionlength'])]
                     ) . '</dd>';
@@ -218,7 +217,7 @@ class Frontend extends Process
                 if ($format['showlinescontent']
                  && '' != $item->content) {
                     $content = '<dd>' .
-                    $_ctx::global_filters(
+                    App::frontend()->context()->global_filters(
                         $item->content,
                         ['remove_html' => (int) $format['linescontentnohtml'], 'cut_string' => abs((int) $format['linescontentlength'])]
                     ) . '</dd>';

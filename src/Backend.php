@@ -23,21 +23,19 @@ class Backend extends Process
 
     public static function process(): bool
     {
-        if (!self::status()) {
-            return false;
+        if (self::status()) {
+            App::behavior()->addBehaviors([
+                'adminBlogPreferencesFormV2'    => BackendBehaviors::adminBlogPreferencesFormV2(...),
+                'adminBeforeBlogSettingsUpdate' => BackendBehaviors::adminBeforeBlogSettingsUpdate(...),
+                'adminPostHeaders'              => BackendBehaviors::adminPostHeaders(...),
+                'adminPostFormItems'            => BackendBehaviors::adminPostFormItems(...),
+                'adminAfterPostCreate'          => BackendBehaviors::adminAfterPostSave(...),
+                'adminAfterPostUpdate'          => BackendBehaviors::adminAfterPostSave(...),
+                'adminBeforePostDelete'         => BackendBehaviors::adminBeforePostDelete(...),
+                'adminPostsActions'             => BackendBehaviors::adminPostsActions(...),
+            ]);
         }
 
-        App::behavior()->addBehaviors([
-            'adminBlogPreferencesFormV2'    => BackendBehaviors::adminBlogPreferencesFormV2(...),
-            'adminBeforeBlogSettingsUpdate' => BackendBehaviors::adminBeforeBlogSettingsUpdate(...),
-            'adminPostHeaders'              => BackendBehaviors::adminPostHeaders(...),
-            'adminPostFormItems'            => BackendBehaviors::adminPostFormItems(...),
-            'adminAfterPostCreate'          => BackendBehaviors::adminAfterPostSave(...),
-            'adminAfterPostUpdate'          => BackendBehaviors::adminAfterPostSave(...),
-            'adminBeforePostDelete'         => BackendBehaviors::adminBeforePostDelete(...),
-            'adminPostsActions'             => BackendBehaviors::adminPostsActions(...),
-        ]);
-
-        return true;
+        return self::status();
     }
 }

@@ -169,6 +169,9 @@ class Config extends Process
         Page::helpBlock('fac');
     }
 
+    /**
+     * @param   array<string, string>   $format
+     */
     private static function displayFacFormat(string $title, string $uid, array $format): void
     {
         echo

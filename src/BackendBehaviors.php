@@ -42,9 +42,9 @@ use Exception;
 class BackendBehaviors
 {
     /**
-     * Get combos of types of supported public pages
+     * Get combos of types of supported public pages.
      *
-     * @return array         List of post type and name
+     * @return  array<string, string>    List of post type and name
      */
     public static function getPostsTypes(): array
     {
@@ -61,7 +61,7 @@ class BackendBehaviors
                 $types[sprintf(
                     __('"%s" pages from extension muppet'),
                     $v['name']
-                )] = $k;
+                )] = (string) $k;
             }
         }
 
@@ -69,9 +69,9 @@ class BackendBehaviors
     }
 
     /**
-     * Add settings to blog preference
+     * Add settings to blog preference.
      *
-     * @param  dcSettings   $blog_settings  dcSettings instance
+     * @param   BlogSettingsInterface   $blog_settings  Blog settings instance
      */
     public static function adminBlogPreferencesFormV2(BlogSettingsInterface $blog_settings): void
     {
@@ -133,9 +133,9 @@ class BackendBehaviors
     }
 
     /**
-     * Save blog settings
+     * Save blog settings.
      *
-     * @param  dcSettings   $blog_settings  dcSettings instance
+     * @param   BlogSettingsInterface   $blog_settings  Blog settings instance
      */
     public static function adminBeforeBlogSettingsUpdate(BlogSettingsInterface $blog_settings): void
     {
@@ -146,7 +146,7 @@ class BackendBehaviors
     }
 
     /**
-     * Add javascript (toggle)
+     * Add javascript (toggle).
      *
      * @return string HTML head
      */
@@ -156,11 +156,11 @@ class BackendBehaviors
     }
 
     /**
-     * Add form to post sidebar
+     * Add form to post sidebar.
      *
-     * @param  ArrayObject $main_items    Main items
-     * @param  ArrayObject $sidebar_items Sidebar items
-     * @param  null|MetaRecord      $post          Post record or null
+     * @param   ArrayObject<string, string>                 $main_items     Main items
+     * @param   ArrayObject<string, array<string, mixed>>   $sidebar_items  Sidebar items
+     * @param   null|MetaRecord                             $post           Post record or null
      */
     public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, ?MetaRecord $post): void
     {
@@ -191,10 +191,10 @@ class BackendBehaviors
     }
 
     /**
-     * Save linked feed
+     * Save linked feed.
      *
-     * @param  Cursor $cur      Current post Cursor
-     * @param  integer $post_id Post id
+     * @param   Cursor  $cur        Current post Cursor
+     * @param   int     $post_id    Post id
      */
     public static function adminAfterPostSave(Cursor $cur, int $post_id): void
     {
@@ -211,9 +211,9 @@ class BackendBehaviors
     }
 
     /**
-     * Delete linked feed on post edition
+     * Delete linked feed on post edition.
      *
-     * @param  integer $post_id Post id
+     * @param   int     $post_id    Post id
      */
     public static function adminBeforePostDelete(int $post_id): void
     {
@@ -221,9 +221,9 @@ class BackendBehaviors
     }
 
     /**
-     * Add actions to posts page combo
+     * Add actions to posts page combo.
      *
-     * @param  ActionsPosts $pa   ActionsPostsPage instance
+     * @param   ActionsPosts    $pa     ActionsPostsPage instance
      */
     public static function adminPostsActions(ActionsPosts $pa): void
     {
@@ -249,10 +249,10 @@ class BackendBehaviors
     }
 
     /**
-     * Posts actions callback to remove linked feed
+     * Posts actions callback to remove linked feed.
      *
-     * @param  ActionsPosts $pa   ActionsPosts instance
-     * @param  ArrayObject        $post _POST actions
+     * @param   ActionsPosts                $pa     ActionsPosts instance
+     * @param   ArrayObject<string, mixed>  $post   _POST actions
      */
     public static function callbackRemove(ActionsPosts $pa, ArrayObject $post): void
     {
@@ -275,7 +275,7 @@ class BackendBehaviors
 
         # Delete unused feed
         foreach ($posts_ids as $post_id) {
-            self::delFeed($post_id);
+            self::delFeed((int) $post_id);
         }
 
         Notices::addSuccessNotice(__('Linked feed deleted.'));
@@ -283,10 +283,10 @@ class BackendBehaviors
     }
 
     /**
-     * Posts actions callback to add linked feed
+     * Posts actions callback to add linked feed.
      *
-     * @param  ActionsPosts $pa   ActionsPosts instance
-     * @param  ArrayObject        $post _POST actions
+     * @param   ActionsPosts                $pa     ActionsPosts instance
+     * @param   ArrayObject<string, mixed>  $post   _POST actions
      */
     public static function callbackAdd(ActionsPosts $pa, ArrayObject $post): void
     {
@@ -303,8 +303,8 @@ class BackendBehaviors
         if (!empty($post['fac_url'])
          && !empty($post['fac_format'])) {
             foreach ($posts_ids as $post_id) {
-                self::delFeed($post_id);
-                self::addFeed($post_id, $post);
+                self::delFeed((int) $post_id);
+                self::addFeed((int) $post_id, $post);
             }
 
             Notices::addSuccessNotice(__('Linked feed added.'));
@@ -325,7 +325,7 @@ class BackendBehaviors
                 (new Text('', $pa->getCheckboxes() . self::formFeed())),
                 (new Para())->items([
                     App::nonce()->formNonce(),
-                    ... $pa->giddenFields(),
+                    ... $pa->hiddenFields(),
                     (new Hidden(['action'], 'fac_add')),
                     (new Submit(['save']))->value(__('Save')),
                 ]),
@@ -336,11 +336,12 @@ class BackendBehaviors
     }
 
     /**
-     * Linked feed form field
+     * Linked feed form field.
      *
-     * @param  string $url    Feed URL
-     * @param  string $format Feed format
-     * @return string         Feed form content
+     * @param   string  $url        Feed URL
+     * @param   string  $format     Feed format
+     *
+     * @return  string  Feed form content
      */
     protected static function formFeed(string $url = '', string $format = ''): string
     {
@@ -366,9 +367,9 @@ class BackendBehaviors
     }
 
     /**
-     * List of fac formats
+     * List of fac formats.
      *
-     * @return array        List of fac formats
+     * @return  array<string, string>   List of fac formats
      */
     protected static function comboFac(): array
     {
@@ -382,16 +383,16 @@ class BackendBehaviors
 
         $res = [];
         foreach ($formats as $uid => $f) {
-            $res[$f['name']] = $uid;
+            $res[(string) $f['name']] = (string) $uid;
         }
 
         return $res;
     }
 
     /**
-     * Delete linked feed
+     * Delete linked feed.
      *
-     * @param  integer $post_id Post id
+     * @param   int     $post_id    Post id
      */
     protected static function delFeed(int $post_id): void
     {
@@ -401,10 +402,10 @@ class BackendBehaviors
     }
 
     /**
-     * Add linked feed
+     * Add linked feed.
      *
-     * @param  integer $post_id Post id
-     * @param  array|ArrayObject   $options Feed options
+     * @param   int                 $post_id    Post id
+     * @param   array<string, mixed>|ArrayObject<string, mixed>   $options    Feed options
      */
     protected static function addFeed(int $post_id, $options): void
     {
