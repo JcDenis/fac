@@ -4,7 +4,7 @@
 ![Date](https://img.shields.io/github/release-date/jcdenis/fac?color=red)
 [![Dotclear](https://img.shields.io/badge/dotclear-v2.33-137bbb.svg)](https://fr.dotclear.org/download)
 [![Dotaddict](https://img.shields.io/badge/dotaddict-official-9ac123.svg)](https://plugins.dotaddict.org/dc2/details/fac)
-[![License](https://img.shields.io/github/license/jcdenis/fac?color=white)](https://github.com/JcDenis/fac/src/branch/master/LICENSE)
+[![License](https://img.shields.io/github/license/jcdenis/fac?color=white)](https://github.com/JcDenis/fac/blob/master/LICENSE)
 
 ## ABOUT
 
@@ -37,7 +37,7 @@ This plugins also supports pages from plugin "muppet".
 
 ## LINKS
 
-* [License](https://github.com/JcDenis/fac/src/branch/master/LICENSE)
+* [License](https://github.com/JcDenis/fac/blob/master/LICENSE)
 * [Packages & details](https://github.com/JcDenis/fac/releases) (or on [Dotaddict](https://plugins.dotaddict.org/dc2/details/fac))
 * [Sources & contributions](https://github.com/JcDenis/fac)
 * [Issues & security](https://github.com/JcDenis/fac/issues)
