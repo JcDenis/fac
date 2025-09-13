@@ -122,8 +122,8 @@ class Install
         // version < 1.0 : upgrade settings id and ns and array
         $current = App::version()->getVersion(My::id());
         if ($current && version_compare($current, '1.0', '<')) {
-            $record = App::con()->select(
-                'SELECT * FROM ' . App::con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
+            $record = App::db()->con()->select(
+                'SELECT * FROM ' . App::db()->con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
                 "WHERE setting_ns = 'fac' "
             );
             while ($record->fetch()) {
@@ -133,10 +133,10 @@ class Install
                         $cur->setField('setting_value', json_encode(@unserialize($record->f('setting_value'))));
                     }
                     $cur->setField('setting_id', $match[1]);
-                    $cur->SetField('setting_ns', My::id());
+                    $cur->setField('setting_ns', My::id());
                     $cur->update(
                         "WHERE setting_id = '" . $record->f('setting_id') . "' and setting_ns = 'fac' " .
-                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . App::con()->escapeStr($record->f('blog_id')) . "' "))
+                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . App::db()->con()->escapeStr($record->f('blog_id')) . "' "))
                     );
                 }
             }
