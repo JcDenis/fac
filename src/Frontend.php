@@ -46,14 +46,14 @@ class Frontend
             // Not in page to show
             $types = json_decode((string) My::settings()->get('public_tpltypes'), true);
             if (!is_array($types)
-             || !in_array(App::url()->type, $types)) {
+             || !App::url()->isType($types)) {
                 return;
             }
 
             // Get related feed
             $fac_url = App::meta()->getMetadata([
                 'meta_type' => 'fac',
-                'post_id'   => App::frontend()->context()->__get('posts')->f('post_id'),
+                'post_id'   => App::frontend()->context()->__get('posts')->intField('post_id'),
                 'limit'     => 1,
             ]);
             if ($fac_url->isEmpty()) {
@@ -63,7 +63,7 @@ class Frontend
             // Get related format
             $fac_format = App::meta()->getMetadata([
                 'meta_type' => 'facformat',
-                'post_id'   => App::frontend()->context()->__get('posts')->f('post_id'),
+                'post_id'   => App::frontend()->context()->__get('posts')->intField('post_id'),
                 'limit'     => 1,
             ]);
             if ($fac_format->isEmpty()) {
@@ -89,12 +89,12 @@ class Frontend
             $formats = json_decode((string) My::settings()->get('formats'), true);
             if (empty($formats)
              || !is_array($formats)
-             || !isset($formats[$fac_format->f('meta_id')])) {
+             || !isset($formats[$fac_format->strField('meta_id')])) {
                 $format = $default_format;
             } else {
                 $format = array_merge(
                     $default_format,
-                    $formats[$fac_format->f('meta_id')]
+                    $formats[$fac_format->strField('meta_id')]
                 );
             }
 
@@ -102,7 +102,7 @@ class Frontend
             $cache = is_dir(App::config()->cacheRoot() . '/fac') ? App::config()->cacheRoot() . '/fac' : null;
 
             try {
-                $feed = Reader::quickParse($fac_url->f('meta_id'), $cache);
+                $feed = Reader::quickParse($fac_url->strField('meta_id'), $cache);
             } catch (Exception $e) {
                 $feed = null;
             }

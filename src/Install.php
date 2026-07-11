@@ -127,16 +127,16 @@ class Install
                 "WHERE setting_ns = 'fac' "
             );
             while ($record->fetch()) {
-                if (preg_match('/^fac_(.*?)$/', $record->f('setting_id'), $match)) {
+                if (preg_match('/^fac_(.*?)$/', $record->strField('setting_id'), $match)) {
                     $cur = App::blogWorkspace()->openBlogWorkspaceCursor();
-                    if (in_array($record->f('setting_id'), ['fac_public_tpltypes', 'fac_formats'])) {
-                        $cur->setField('setting_value', json_encode(@unserialize($record->f('setting_value'))));
+                    if (in_array($record->strField('setting_id'), ['fac_public_tpltypes', 'fac_formats'])) {
+                        $cur->setField('setting_value', json_encode(@unserialize($record->strField('setting_value'))));
                     }
                     $cur->setField('setting_id', $match[1]);
                     $cur->setField('setting_ns', My::id());
                     $cur->update(
-                        "WHERE setting_id = '" . $record->f('setting_id') . "' and setting_ns = 'fac' " .
-                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . App::db()->con()->escapeStr($record->f('blog_id')) . "' "))
+                        "WHERE setting_id = '" . $record->strField('setting_id') . "' and setting_ns = 'fac' " .
+                        'AND blog_id ' . ('' === $record->strField('blog_id') ? 'IS NULL ' : ("= '" . App::db()->con()->escapeStr($record->strField('blog_id')) . "' "))
                     );
                 }
             }

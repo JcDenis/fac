@@ -167,17 +167,17 @@ class BackendBehaviors
         if ($post) {
             $rs = App::meta()->getMetadata([
                 'meta_type' => 'fac',
-                'post_id'   => $post->f('post_id'),
+                'post_id'   => $post->intField('post_id'),
                 'limit'     => 1,
             ]);
-            $fac_url = $rs->isEmpty() ? '' : $rs->f('meta_id');
+            $fac_url = $rs->isEmpty() ? '' : $rs->strField('meta_id');
 
             $rs = App::meta()->getMetadata([
                 'meta_type' => 'facformat',
-                'post_id'   => $post->f('post_id'),
+                'post_id'   => $post->intField('post_id'),
                 'limit'     => 1,
             ]);
-            $fac_format = $rs->isEmpty() ? '' : $rs->f('meta_id');
+            $fac_format = $rs->isEmpty() ? '' : $rs->strField('meta_id');
         }
 
         # Set linked feed form items
