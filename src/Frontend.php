@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\fac;
 
 use Dotclear\App;
+use Dotclear\Database\MetaRecord;
 use Dotclear\Helper\Process\TraitProcess;
 use Dotclear\Helper\Date;
 use Dotclear\Helper\Html\Html;
@@ -29,7 +30,7 @@ class Frontend
 
     public static function process(): bool
     {
-        if (!self::status() || !App::blog()->isDefined() || !My::settings()->get('active')) {
+        if (!self::status() || !App::blog()->isDefined() || !My::settings()->getBool('active', false)) {
             return false;
         }
 
@@ -44,9 +45,10 @@ class Frontend
             }
 
             // Not in page to show
-            $types = json_decode((string) My::settings()->get('public_tpltypes'), true);
+            $types = json_decode(My::settings()->getStr('public_tpltypes', false), true);
             if (!is_array($types)
-             || !App::url()->isType($types)) {
+             || !App::url()->isType($types)
+             || !(App::frontend()->context()->__get('posts') instanceof MetaRecord)) {
                 return;
             }
 
@@ -54,7 +56,7 @@ class Frontend
             $fac_url = App::meta()->getMetadata([
                 'meta_type' => 'fac',
                 'post_id'   => App::frontend()->context()->__get('posts')->intField('post_id'),
-                'limit'     => 1,
+                'limit'     => 1
             ]);
             if ($fac_url->isEmpty()) {
                 return;
@@ -70,32 +72,15 @@ class Frontend
                 return;
             }
 
-            // Get format info
-            $default_format = [
-                'name'                   => 'default',
-                'dateformat'             => '',
-                'lineslimit'             => '5',
-                'linestitletext'         => '%T',
-                'linestitleover'         => '%D',
-                'linestitlelength'       => '150',
-                'showlinesdescription'   => '0',
-                'linesdescriptionlength' => '350',
-                'linesdescriptionnohtml' => '1',
-                'showlinescontent'       => '0',
-                'linescontentlength'     => '350',
-                'linescontentnohtml'     => '1',
-            ];
-
-            $formats = json_decode((string) My::settings()->get('formats'), true);
+            $formats = json_decode(My::settings()->getStr('formats', false), true);
             if (empty($formats)
              || !is_array($formats)
-             || !isset($formats[$fac_format->strField('meta_id')])) {
-                $format = $default_format;
+             || !isset($formats[$fac_format->strField('meta_id')])
+             || !is_array($formats[$fac_format->strField('meta_id')])
+            ) {
+                $format = new Format();
             } else {
-                $format = array_merge(
-                    $default_format,
-                    $formats[$fac_format->strField('meta_id')]
-                );
+                $format = new Format($formats[$fac_format->strField('meta_id')]);
             }
 
             // Read feed url
@@ -114,25 +99,25 @@ class Frontend
 
             // Feed title
             $feedtitle = '';
-            if ('' != My::settings()->get('defaultfeedtitle')) {
+            if ('' != My::settings()->getStr('defaultfeedtitle', false)) {
                 $feedtitle = '<h3>' . Html::escapeHTML(
                     empty($feed->title) ?
                     str_replace(
                         '%T',
                         __('a related feed'),
-                        (string) My::settings()->get('defaultfeedtitle')
+                        My::settings()->getStr('defaultfeedtitle', false)
                     ) :
                     str_replace(
                         '%T',
                         $feed->title,
-                        (string) My::settings()->get('defaultfeedtitle')
+                        My::settings()->getStr('defaultfeedtitle', false)
                     )
                 ) . '</h3>';
             }
 
             // Feed desc
             $feeddesc = '';
-            if (My::settings()->get('showfeeddesc')
+            if (My::settings()->getBool('showfeeddesc', false)
              && '' != $feed->description) {
                 $feeddesc = '<p>' . App::frontend()->context()->global_filters(
                     $feed->description,
@@ -140,13 +125,8 @@ class Frontend
                 ) . '</p>';
             }
 
-            // Date format
-            $dateformat = '' != $format['dateformat'] ?
-                $format['dateformat'] :
-                App::blog()->settings()->get('system')->get('date_format') . ',' . App::blog()->settings()->get('system')->get('time_format');
-
             // Enrties limit
-            $entrieslimit = abs((int) $format['lineslimit']);
+            $entrieslimit = $format->lineslimit;
             $uselimit     = $entrieslimit > 0 ? true : false;
 
             echo
@@ -157,7 +137,7 @@ class Frontend
             $i = 0;
             foreach ($feed->items as $item) {
                 # Format date
-                $date = Date::dt2str($dateformat, $item->pubdate);
+                $date = Date::dt2str($format->dateformat, is_string($item->pubdate) ? $item->pubdate : (string) time());
 
                 // Entries title
                 $title = App::frontend()->context()->global_filters(
@@ -171,14 +151,14 @@ class Frontend
                         ],
                         [
                             $date,
-                            $item->title,
-                            $item->creator,
-                            $item->description,
-                            $item->content,
+                            is_string($item->title) ? $item->title : '',
+                            is_string($item->creator) ? $item->creator : '',
+                            is_string($item->description) ? $item->description : '',
+                            is_string($item->content) ? $item->content : '',
                         ],
-                        (string) $format['linestitletext']
+                        $format->linestitletext
                     ),
-                    ['remove_html', 'cut_string' => abs((int) $format['linestitlelength'])],
+                    ['remove_html', 'cut_string' => $format->linestitlelength],
                 );
 
                 // Entries over title
@@ -193,40 +173,40 @@ class Frontend
                         ],
                         [
                             $date,
-                            $item->title,
-                            $item->creator,
-                            $item->description,
-                            $item->content,
+                            is_string($item->title) ? $item->title : '',
+                            is_string($item->creator) ? $item->creator : '',
+                            is_string($item->description) ? $item->description : '',
+                            is_string($item->content) ? $item->content : '',
                         ],
-                        (string) $format['linestitleover']
+                        $format->linestitleover
                     ),
                     ['remove_html', 'cut_string' => 350],
                 );
 
                 // Entries description
                 $description = '';
-                if ($format['showlinesdescription']
+                if ($format->showlinesdescription
                  && '' != $item->description) {
                     $description = '<dd>' .
                     App::frontend()->context()->global_filters(
-                        $item->description,
-                        ['remove_html' => (int) $format['linesdescriptionnohtml'], 'cut_string' => abs((int) $format['linesdescriptionlength'])]
+                        is_string($item->description) ? $item->description : '',
+                        ['remove_html' => (int) $format->linesdescriptionnohtml, 'cut_string' => $format->linesdescriptionlength]
                     ) . '</dd>';
                 }
 
                 // Entries content
                 $content = '';
-                if ($format['showlinescontent']
+                if ($format->showlinescontent
                  && '' != $item->content) {
                     $content = '<dd>' .
                     App::frontend()->context()->global_filters(
-                        $item->content,
-                        ['remove_html' => (int) $format['linescontentnohtml'], 'cut_string' => abs((int) $format['linescontentlength'])]
+                        is_string($item->content) ? $item->content : '',
+                        ['remove_html' => (int) $format->linescontentnohtml, 'cut_string' => $format->linescontentlength]
                     ) . '</dd>';
                 }
 
                 echo
-                '<dt><a href="' . $item->link . '" ' .
+                '<dt><a href="' . (is_string($item->link) ? $item->link : '') . '" ' .
                 'title="' . $overtitle . '">' . $title . '</a></dt>' .
                 $description . $content;
 

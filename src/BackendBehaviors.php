@@ -51,11 +51,16 @@ class BackendBehaviors
             __('entries feed')   => 'feed',
         ];
         if (App::plugins()->getDefine('muppet')->isDefined() && class_exists('\muppet')) {
-            foreach (\muppet::getPostTypes() as $k => $v) {
-                $types[sprintf(
-                    __('"%s" pages from extension muppet'),
-                    $v['name']
-                )] = (string) $k;
+            $muppets = \muppet::getPostTypes();
+            if (is_array($muppets)) {
+                foreach ($muppets as $k => $v) {
+                    if (is_array($v) && isset($v['name']) && is_string($v['name'])) {
+                        $types[sprintf(
+                            __('"%s" pages from extension muppet'),
+                            $v['name']
+                        )] = (string) $k;
+                    }
+                }
             }
         }
 
@@ -70,7 +75,7 @@ class BackendBehaviors
     public static function adminBlogPreferencesFormV2(BlogSettingsInterface $blog_settings): void
     {
         $lines               = '';
-        $fac_public_tpltypes = json_decode($blog_settings->get(My::id())->get('public_tpltypes'), true);
+        $fac_public_tpltypes = json_decode($blog_settings->get(My::id())->getStr('public_tpltypes', false), true);
         if (!is_array($fac_public_tpltypes)) {
             $fac_public_tpltypes = [];
         }
@@ -100,7 +105,7 @@ class BackendBehaviors
                 (new Text('h5', Html::escapeHTML(__('Activation')))),
                 // active
                 (new Para())->items([
-                    (new Checkbox('fac_active', (bool) $blog_settings->get(My::id())->get('active')))->value(1),
+                    (new Checkbox('fac_active', $blog_settings->get(My::id())->getBool('active', false)))->value(1),
                     (new Label(__('Enable "fac" extension'), Label::OUTSIDE_LABEL_AFTER))->for('fac_active')->class('classic'),
                 ]),
                 (new Note())->text(__('You can manage related feed to display for each post with a predefined format.'))->class('form-note'),
@@ -108,12 +113,12 @@ class BackendBehaviors
                 // defaultfeedtitle
                 (new Para())->items([
                     (new Label(__('Default title')))->for('fac_defaultfeedtitle'),
-                    (new Input('fac_defaultfeedtitle'))->size(70)->maxlength(255)->value((string) $blog_settings->get(My::id())->get('defaultfeedtitle')),
+                    (new Input('fac_defaultfeedtitle'))->size(70)->maxlength(255)->value($blog_settings->get(My::id())->getStr('defaultfeedtitle', false)),
                 ]),
                 (new Note())->text(__('Use %T to insert title of feed.'))->class('form-note'),
                 // showfeeddesc
                 (new Para())->items([
-                    (new Checkbox('fac_showfeeddesc', (bool) $blog_settings->get(My::id())->get('showfeeddesc')))->value(1),
+                    (new Checkbox('fac_showfeeddesc', $blog_settings->get(My::id())->getBool('showfeeddesc', false)))->value(1),
                     (new Label(__('Show description of feed'), Label::OUTSIDE_LABEL_AFTER))->for('fac_showfeeddesc')->class('classic'),
                 ]),
             ]),
@@ -135,7 +140,7 @@ class BackendBehaviors
     {
         $blog_settings->get(My::id())->put('active', !empty($_POST['fac_active']));
         $blog_settings->get(My::id())->put('public_tpltypes', json_encode($_POST['fac_public_tpltypes']));
-        $blog_settings->get(My::id())->put('defaultfeedtitle', (string) $_POST['fac_defaultfeedtitle']);
+        $blog_settings->get(My::id())->put('defaultfeedtitle', isset($_POST['fac_defaultfeedtitle']) && is_string($_POST['fac_defaultfeedtitle']) ? $_POST['fac_defaultfeedtitle'] : '');
         $blog_settings->get(My::id())->put('showfeeddesc', !empty($_POST['fac_showfeeddesc']));
     }
 
@@ -158,7 +163,7 @@ class BackendBehaviors
      */
     public static function adminPostFormItems(ArrayObject $main_items, ArrayObject $sidebar_items, ?MetaRecord $post): void
     {
-        if (!App::blog()->isDefined() || !My::settings()->get('active')) {
+        if (!App::blog()->isDefined() || !My::settings()->getBool('active', false)) {
             return;
         }
 
@@ -178,6 +183,12 @@ class BackendBehaviors
                 'limit'     => 1,
             ]);
             $fac_format = $rs->isEmpty() ? '' : $rs->strField('meta_id');
+        }
+        if (!is_array($sidebar_items['options-box'])) {
+            $sidebar_items['options-box'] = [];
+        }
+        if (!is_array($sidebar_items['options-box']['items'])) {
+            $sidebar_items['options-box']['items'] = [];
         }
 
         # Set linked feed form items
@@ -221,7 +232,7 @@ class BackendBehaviors
      */
     public static function adminPostsActions(ActionsPosts $pa): void
     {
-        if (!App::blog()->isDefined() || !My::settings()->get('active')) {
+        if (!App::blog()->isDefined() || !My::settings()->getBool('active', false)) {
             return;
         }
 
@@ -298,7 +309,7 @@ class BackendBehaviors
          && !empty($post['fac_format'])) {
             foreach ($posts_ids as $post_id) {
                 self::delFeed((int) $post_id);
-                self::addFeed((int) $post_id, $post);
+                self::addFeed((int) $post_id, iterator_to_array($post));
             }
 
             Notices::addSuccessNotice(__('Linked feed added.'));
@@ -339,7 +350,7 @@ class BackendBehaviors
      */
     protected static function formFeed(string $url = '', string $format = ''): string
     {
-        if (!App::blog()->isDefined() || !My::settings()->get('active')) {
+        if (!App::blog()->isDefined() || !My::settings()->getBool('active', false)) {
             return '';
         }
 
@@ -370,14 +381,16 @@ class BackendBehaviors
         if (!App::blog()->isDefined()) {
             return [];
         }
-        $formats = json_decode((string) My::settings()->get('formats'), true);
+        $formats = json_decode((string) My::settings()->getStr('formats', false), true);
         if (!is_array($formats) || empty($formats)) {
             return [];
         }
 
         $res = [];
         foreach ($formats as $uid => $f) {
-            $res[(string) $f['name']] = (string) $uid;
+            if (is_array($f) && is_string($f['name'])) {
+                $res[(string) $f['name']] = (string) $uid;
+            }
         }
 
         return $res;
@@ -398,17 +411,16 @@ class BackendBehaviors
     /**
      * Add linked feed.
      *
-     * @param   int                 $post_id    Post id
-     * @param   array<string, mixed>|ArrayObject<string, mixed>   $options    Feed options
+     * @param   int             $post_id    Post id
+     * @param   array<mixed>    $options    Feed options
      */
     protected static function addFeed(int $post_id, $options): void
     {
-        if (empty($options['fac_url'])
-         || empty($options['fac_format'])) {
+        if (empty($options['fac_url']) || !is_string($options['fac_url'])
+         || empty($options['fac_format']) || !is_string($options['fac_format'])
+        ) {
             return;
         }
-
-        $post_id = (int) $post_id;
 
         App::meta()->setPostMeta(
             $post_id,

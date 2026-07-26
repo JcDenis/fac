@@ -6,6 +6,7 @@ namespace Dotclear\Plugin\fac;
 
 use Dotclear\App;
 use Dotclear\Helper\Process\TraitProcess;
+use Dotclear\Core\Backend\ModulesList;
 use Dotclear\Core\Backend\Notices;
 use Dotclear\Core\Backend\Page;
 use Dotclear\Helper\Html\Html;
@@ -41,7 +42,7 @@ class Config
             return false;
         }
 
-        if (!App::blog()->isDefined()) {
+        if (!App::blog()->isDefined() || !(App::backend()->__get('list') instanceof ModulesList)) {
             return false;
         }
 
@@ -51,19 +52,19 @@ class Config
         # -- Get settings --
         $s = My::settings();
 
-        $fac_formats = json_decode($s->get('formats'), true);
+        $fac_formats = json_decode($s->getStr('formats', false), true);
 
         if (!is_array($fac_formats)) {
             $fac_formats = [];
         }
 
         # -- Set settings --
-        if (!empty($_POST['save'])) {
+        if (!empty($_POST['save']) && is_array($_POST['fac_formats'])) {
             try {
                 $fac_formats = [];
 
                 foreach ($_POST['fac_formats'] as $uid => $f) {
-                    if (!empty($f['name'])) {
+                    if (is_array($f) && !empty($f['name'])) {
                         $fac_formats[$uid] = $f;
                     }
                 }
@@ -104,35 +105,21 @@ class Config
 
         $s = My::settings();
 
-        $fac_formats = json_decode($s->get('formats'), true);
+        $fac_formats = json_decode($s->getStr('formats', false), true);
+        if (is_array($fac_formats)) {
+            $i = 1;
+            foreach ($fac_formats as $uid => $format) {
+                if (!is_numeric($uid) || !is_array($format) || empty($format['name'])) {
+                    continue;
+                }
 
-        $i = 1;
-        foreach ($fac_formats as $uid => $format) {
-            if (empty($format['name'])) {
-                continue;
+                self::displayFacFormat(sprintf(__('Format %s'), $i), (string) $uid, $format);
+
+                $i++;
             }
-
-            self::displayFacFormat(sprintf(__('Format %s'), $i), $uid, $format);
-
-            $i++;
         }
 
-        $new_format = [
-            'name'                   => '',
-            'dateformat'             => '',
-            'lineslimit'             => '5',
-            'linestitletext'         => '%T',
-            'linestitleover'         => '%D',
-            'linestitlelength'       => '150',
-            'showlinesdescription'   => '0',
-            'linesdescriptionlength' => '350',
-            'linesdescriptionnohtml' => '1',
-            'showlinescontent'       => '0',
-            'linescontentlength'     => '350',
-            'linescontentnohtml'     => '1',
-        ];
-
-        self::displayFacFormat(__('New format'), uniqid(), $new_format);
+        self::displayFacFormat(__('New format'), uniqid(), []);
 
         echo '
         <div class="fieldset">
@@ -168,10 +155,12 @@ class Config
     }
 
     /**
-     * @param   array<string, string>   $format
+     * @param   array<mixed>    $format
      */
     private static function displayFacFormat(string $title, string $uid, array $format): void
     {
+        $f = new Format($format);
+
         echo
         (new Div())->class('fieldset')->separator('')->items([
             (new Text('h4', $title)),
@@ -183,7 +172,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][name]',
                         'fac_formats_' . $uid . '_name',
-                    ]))->value(empty($format['name']) ? '' : $format['name'])->size(20)->maxlength(255)->class('maximal'),
+                    ]))->value($f->name)->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(__('In order to remove a format, leave its name empty.'))->class('form-note'),
                 // dateformat
@@ -192,7 +181,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][dateformat]',
                         'fac_formats_' . $uid . '_dateformat',
-                    ]))->value(empty($format['dateformat']) ? '' : $format['dateformat'])->size(20)->maxlength(255)->class('maximal'),
+                    ]))->value($f->dateformat)->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(__('Use date format of Dotclear or leave empty to use default date format of blog.'))->class('form-note'),
                 // dateformat //todo: use Number
@@ -201,7 +190,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][lineslimit]',
                         'fac_formats_' . $uid . '_lineslimit',
-                    ]))->value(empty($format['lineslimit']) ? '' : $format['lineslimit'])->size(4)->maxlength(5),
+                    ]))->value((string) $f->lineslimit)->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),
@@ -213,7 +202,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][linestitletext]',
                         'fac_formats_' . $uid . '_linestitletext',
-                    ]))->value(empty($format['linestitletext']) ? '' : $format['linestitletext'])->size(20)->maxlength(255)->class('maximal'),
+                    ]))->value($f->linestitletext)->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(
                     __('Format can be:') .
@@ -229,7 +218,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][linestitleover]',
                         'fac_formats_' . $uid . '_linestitleover',
-                    ]))->value(empty($format['linestitleover']) ? '' : $format['linestitleover'])->size(20)->maxlength(255)->class('maximal'),
+                    ]))->value($f->linestitleover)->size(20)->maxlength(255)->class('maximal'),
                 ]),
                 (new Note())->text(
                     __('Format can be:') .
@@ -245,7 +234,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][linestitlelength]',
                         'fac_formats_' . $uid . '_linestitlelength',
-                    ]))->value(empty($format['linestitlelength']) ? '' : $format['linestitlelength'])->size(4)->maxlength(5),
+                    ]))->value((string) $f->linestitlelength)->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),
@@ -256,7 +245,7 @@ class Config
                     (new Checkbox([
                         'fac_formats[' . $uid . '][showlinesdescription]',
                         'fac_formats_' . $uid . '_showlinesdescription',
-                    ], !empty($format['showlinesdescription'])))->value(1),
+                    ], $f->showlinesdescription))->value(1),
                     (new Label(__('Show description of entries'), Label::OUTSIDE_LABEL_AFTER))->for('fac_formats_' . $uid . '_showlinesdescription')->class('classic'),
                 ]),
                 // linesdescriptionnohtml
@@ -264,7 +253,7 @@ class Config
                     (new Checkbox([
                         'fac_formats[' . $uid . '][linesdescriptionnohtml]',
                         'fac_formats_' . $uid . '_linesdescriptionnohtml',
-                    ], !empty($format['linesdescriptionnohtml'])))->value(1),
+                    ], $f->linesdescriptionnohtml))->value(1),
                     (new Label(__('Remove html of description'), Label::OUTSIDE_LABEL_AFTER))->for('fac_formats_' . $uid . '_linesdescriptionnohtml')->class('classic'),
                 ]),
                 // linesdescriptionlength //todo: use Number
@@ -273,7 +262,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][linesdescriptionlength]',
                         'fac_formats_' . $uid . '_linesdescriptionlength',
-                    ]))->value(empty($format['linesdescriptionlength']) ? '' : $format['linesdescriptionlength'])->size(4)->maxlength(5),
+                    ]))->value((string) $f->linesdescriptionlength)->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),
@@ -284,7 +273,7 @@ class Config
                     (new Checkbox([
                         'fac_formats[' . $uid . '][showlinescontent]',
                         'fac_formats_' . $uid . '_showlinescontent',
-                    ], !empty($format['showlinescontent'])))->value(1),
+                    ], $f->showlinescontent))->value(1),
                     (new Label(__('Show content of entries'), Label::OUTSIDE_LABEL_AFTER))->for('fac_formats_' . $uid . '_showlinescontent')->class('classic'),
                 ]),
                 // linescontentnohtml
@@ -292,7 +281,7 @@ class Config
                     (new Checkbox([
                         'fac_formats[' . $uid . '][linescontentnohtml]',
                         'fac_formats_' . $uid . '_linescontentnohtml',
-                    ], !empty($format['linescontentnohtml'])))->value(1),
+                    ], $f->linescontentnohtml))->value(1),
                     (new Label(__('Remove html of content'), Label::OUTSIDE_LABEL_AFTER))->for('fac_formats_' . $uid . '_linescontentnohtml')->class('classic'),
                 ]),
                 // linescontentlength //todo: use Number
@@ -301,7 +290,7 @@ class Config
                     (new Input([
                         'fac_formats[' . $uid . '][linescontentlength]',
                         'fac_formats_' . $uid . '_linescontentlength',
-                    ]))->value(empty($format['linescontentlength']) ? '' : $format['linescontentlength'])->size(4)->maxlength(5),
+                    ]))->value((string) $f->linescontentlength)->size(4)->maxlength(5),
                 ]),
                 (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
             ]),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\fac;
 
 use Dotclear\App;
+use Dotclear\Database\MetaRecord;
 use Dotclear\Helper\Process\TraitProcess;
 use Exception;
 
@@ -126,6 +127,7 @@ class Install
                 'SELECT * FROM ' . App::db()->con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
                 "WHERE setting_ns = 'fac' "
             );
+            $record = new MetaRecord($record);
             while ($record->fetch()) {
                 if (preg_match('/^fac_(.*?)$/', $record->strField('setting_id'), $match)) {
                     $cur = App::blogWorkspace()->openBlogWorkspaceCursor();
