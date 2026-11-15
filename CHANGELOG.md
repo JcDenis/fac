@@ -1,3 +1,8 @@
+fac 1.8 - 2026.11.15
+===========================================================
+* [fix] Saved formats shown again, empty limits, remote HTML cleaned and escaped, page types, feed removal note, typos
+* [docs] Add a user guide in French, with screenshots
+
 fac 1.7 - 2026.08.12
 ===========================================================
 * Bump Dotclear from 2.36 to 2.39
