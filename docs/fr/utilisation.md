@@ -45,7 +45,7 @@ La page propose un bloc **Nouveau format** :
 
 * **Nom** : le nom du format, tel qu'il apparaîtra dans le menu des billets. Pour supprimer un format, videz son nom.
 * **Format des dates** : le format de date de Dotclear, par exemple `%d/%m/%Y`. Vide : le format de date du blog.
-* **Limite du nombre d'entrées** : combien d'éléments du flux afficher.
+* **Limite du nombre d'entrées** : combien d'éléments du flux afficher. Comme pour les longueurs, laissez vide pour ne pas limiter.
 
 **Titre**
 
@@ -70,7 +70,7 @@ Cliquez sur **Enregistrer** pour garder les formats.
 
 ![Le menu latéral du billet](img/billet-menu-lateral.png)
 
-Pour retirer le flux, il faut utiliser l'action de masse « Retirer un flux » décrite ci-dessous.
+Pour retirer le flux, videz le champ de l'adresse puis enregistrez le billet. L'action de masse « Retirer un flux », décrite ci-dessous, le fait pour plusieurs billets à la fois.
 
 ## Lier ou retirer un flux sur plusieurs billets
 
@@ -95,10 +95,6 @@ Le tout est dans un bloc `<div class="post-fac">` que vous pouvez habiller en CS
 
 ## Bon à savoir
 
-* **Un format enregistré n'est plus affiché dans la configuration.** Après l'enregistrement, la page ne montre que le bloc **Nouveau format**. Le format enregistré reste utilisable dans le menu des billets, mais on ne peut plus ni le modifier ni le supprimer, et un nouvel enregistrement de la page efface les formats existants. Il vaut mieux créer tous les formats en une seule fois et ne plus repasser sur cette page.
-* **Laisser une limite vide ne supprime pas la limite** : le plugin utilise alors sa valeur par défaut (5 éléments, 150 caractères pour le titre, 350 pour la description et le contenu), contrairement à ce que dit la page. Pour ne plus afficher un élément, ne cochez pas son option.
 * **Si l'on décoche tous les types de pages**, le plugin ne s'affiche plus nulle part.
-* **Le texte de l'élément n'est pas nettoyé** si « Retirer le code HTML » n'est pas coché : le HTML du flux distant est alors affiché tel quel. Ne reliez que des flux de confiance, ou cochez toujours cette option.
-* **Pas de bouton pour retirer le flux dans le menu latéral du billet** : il faut passer par l'action « Retirer un flux » de la liste des billets.
-* **Textes** : plusieurs fautes dans les textes de la page de configuration (« pulicEnryAfterContent », « Descritpion du flux », « Lié un flux a cette selection », « longueur » écrit « lengh »).
+* **Le HTML du flux distant est toujours nettoyé** : même si « Retirer le code HTML » n'est pas coché, les balises dangereuses sont retirées avant l'affichage.
 * **Flux injoignable** : si le flux ne répond pas ou n'est pas valide, rien n'est affiché sous le billet, sans message d'erreur.
