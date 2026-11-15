@@ -74,7 +74,7 @@ msgid "Linked feed added."
 msgstr "Flux lié ajouté."
 
 msgid "Linked feed to this selection"
-msgstr "Lié un flux a cette selection"
+msgstr "Flux lié à cette sélection"
 
 msgid "view feed"
 msgstr "Voir le flux"
@@ -131,7 +131,7 @@ msgid "Theme"
 msgstr "Thème"
 
 msgid "Theme must have behavior publicEntryAfterContent."
-msgstr "Le thème doit avoir le behavior pulicEnryAfterContent."
+msgstr "Le thème doit avoir le behavior publicEntryAfterContent."
 
 msgid "Structure"
 msgstr "Structure"
@@ -140,7 +140,7 @@ msgid "Title of feed"
 msgstr "Titre du flux"
 
 msgid "Description of feed"
-msgstr "Descritpion du flux"
+msgstr "Description du flux"
 
 msgid "Title of entry"
 msgstr "Titre du billet"
