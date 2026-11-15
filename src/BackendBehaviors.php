@@ -139,7 +139,8 @@ class BackendBehaviors
     public static function adminBeforeBlogSettingsUpdate(BlogSettingsInterface $blog_settings): void
     {
         $blog_settings->get(My::id())->put('active', !empty($_POST['fac_active']));
-        $blog_settings->get(My::id())->put('public_tpltypes', json_encode($_POST['fac_public_tpltypes']));
+        $types = isset($_POST['fac_public_tpltypes']) && is_array($_POST['fac_public_tpltypes']) ? array_values(array_filter($_POST['fac_public_tpltypes'], is_string(...))) : [];
+        $blog_settings->get(My::id())->put('public_tpltypes', json_encode($types));
         $blog_settings->get(My::id())->put('defaultfeedtitle', isset($_POST['fac_defaultfeedtitle']) && is_string($_POST['fac_defaultfeedtitle']) ? $_POST['fac_defaultfeedtitle'] : '');
         $blog_settings->get(My::id())->put('showfeeddesc', !empty($_POST['fac_showfeeddesc']));
     }
@@ -360,14 +361,15 @@ class BackendBehaviors
             // fac_url
             (new Para())->items([
                 (new Label(__('Feed URL:')))->for('fac_url')->class('required'),
-                (new Input('fac_url'))->size(60)->maxlength(255)->value($url),
+                (new Input('fac_url'))->size(60)->maxlength(255)->value(Html::escapeHTML($url)),
             ]),
             // fac_format
             (new Para())->items([
                 (new Label(__('Format:')))->for('fac_format'),
                 (new Select('fac_format'))->default($format)->items(self::comboFac()),
             ]),
-            (new Text('', $url ? '<p><a href="' . $url . '" title="' . $url . '">' . __('view feed') . '</a></p>' : '')),
+            (new Note())->class('form-note')->text(__('Leave URL empty to remove the linked feed.')),
+            (new Text('', $url ? '<p><a href="' . Html::escapeURL($url) . '" title="' . Html::escapeHTML($url) . '">' . __('view feed') . '</a></p>' : '')),
         ])->render();
     }
 

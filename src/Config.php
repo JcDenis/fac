@@ -109,7 +109,7 @@ class Config
         if (is_array($fac_formats)) {
             $i = 1;
             foreach ($fac_formats as $uid => $format) {
-                if (!is_numeric($uid) || !is_array($format) || empty($format['name'])) {
+                if (!is_array($format) || empty($format['name'])) {
                     continue;
                 }
 
@@ -123,13 +123,13 @@ class Config
 
         echo '
         <div class="fieldset">
-        <h4 id="' . My::id() . 'Params">' . __('Informations') . '</h4>
+        <h4 id="' . My::id() . 'Params">' . __('Information') . '</h4>
 
         <div class="two-boxes">
 
         <h5>' . __('Theme') . '</h5>
         <p>' .
-        __('Theme must have behavoir publicEntryAfterContent.') . ' ' .
+        __('Theme must have behavior publicEntryAfterContent.') . ' ' .
         __('To add feed to an entry edit this entry and put in sidebar the url of the feed and select a format.') .
         '</p>
 
@@ -192,7 +192,7 @@ class Config
                         'fac_formats_' . $uid . '_lineslimit',
                     ]))->value((string) $f->lineslimit)->size(4)->maxlength(5),
                 ]),
-                (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
+                (new Note())->text(__('Leave empty for no limit.'))->class('form-note'),
             ]),
             (new Div())->class('two-boxes odd')->items([
                 (new Text('h5', __('Title'))),
@@ -236,7 +236,7 @@ class Config
                         'fac_formats_' . $uid . '_linestitlelength',
                     ]))->value((string) $f->linestitlelength)->size(4)->maxlength(5),
                 ]),
-                (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
+                (new Note())->text(__('Leave empty for no limit.'))->class('form-note'),
             ]),
             (new Div())->class('two-boxes even')->items([
                 (new Text('h5', __('Description'))),
@@ -264,7 +264,7 @@ class Config
                         'fac_formats_' . $uid . '_linesdescriptionlength',
                     ]))->value((string) $f->linesdescriptionlength)->size(4)->maxlength(5),
                 ]),
-                (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
+                (new Note())->text(__('Leave empty for no limit.'))->class('form-note'),
             ]),
             (new Div())->class('two-boxes odd')->items([
                 (new Text('h5', __('Content'))),
@@ -292,7 +292,7 @@ class Config
                         'fac_formats_' . $uid . '_linescontentlength',
                     ]))->value((string) $f->linescontentlength)->size(4)->maxlength(5),
                 ]),
-                (new Note())->text(__('Leave lengh empty for no limit.'))->class('form-note'),
+                (new Note())->text(__('Leave empty for no limit.'))->class('form-note'),
             ]),
         ])->render();
     }

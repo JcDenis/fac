@@ -88,7 +88,7 @@ msgstr "Pour retirer un format, laisser son nom vide."
 msgid "Use date format of Dotclear or leave empty to use default date format of blog."
 msgstr "Utiliser le formatage des dates de Dotclear ou laisser vide pour utiliser le format par défaut du blog."
 
-msgid "Leave lengh empty for no limit."
+msgid "Leave empty for no limit."
 msgstr "Laisser vide pour ne pas mettre de limite."
 
 msgid "Title format:"
@@ -124,13 +124,13 @@ msgstr "Longueur maximum du contenu :"
 msgid "New format"
 msgstr "Nouveau format"
 
-msgid "Informations"
+msgid "Information"
 msgstr "Informations"
 
 msgid "Theme"
 msgstr "Thème"
 
-msgid "Theme must have behavoir publicEntryAfterContent."
+msgid "Theme must have behavior publicEntryAfterContent."
 msgstr "Le thème doit avoir le behavior pulicEnryAfterContent."
 
 msgid "Structure"
@@ -154,3 +154,5 @@ msgstr "un flux lié"
 msgid "Add RSS/Atom feeds after entries content"
 msgstr "Ajouter des flux RSS/Atom après le contenu des billets"
 
+msgid "Leave URL empty to remove the linked feed."
+msgstr "Laisser l'URL vide pour retirer le flux lié."

@@ -158,7 +158,7 @@ class Frontend
                         ],
                         $format->linestitletext
                     ),
-                    ['remove_html', 'cut_string' => $format->linestitlelength],
+                    self::filters(true, $format->linestitlelength),
                 );
 
                 // Entries over title
@@ -180,17 +180,17 @@ class Frontend
                         ],
                         $format->linestitleover
                     ),
-                    ['remove_html', 'cut_string' => 350],
+                    self::filters(true, 350),
                 );
 
                 // Entries description
                 $description = '';
                 if ($format->showlinesdescription
                  && '' != $item->description) {
-                    $description = '<dd>' .
-                    App::frontend()->context()->global_filters(
+                    $description = '<dd>' . self::text(
                         is_string($item->description) ? $item->description : '',
-                        ['remove_html' => (int) $format->linesdescriptionnohtml, 'cut_string' => $format->linesdescriptionlength]
+                        $format->linesdescriptionnohtml,
+                        $format->linesdescriptionlength
                     ) . '</dd>';
                 }
 
@@ -198,16 +198,16 @@ class Frontend
                 $content = '';
                 if ($format->showlinescontent
                  && '' != $item->content) {
-                    $content = '<dd>' .
-                    App::frontend()->context()->global_filters(
+                    $content = '<dd>' . self::text(
                         is_string($item->content) ? $item->content : '',
-                        ['remove_html' => (int) $format->linescontentnohtml, 'cut_string' => $format->linescontentlength]
+                        $format->linescontentnohtml,
+                        $format->linescontentlength
                     ) . '</dd>';
                 }
 
                 echo
-                '<dt><a href="' . (is_string($item->link) ? $item->link : '') . '" ' .
-                'title="' . $overtitle . '">' . $title . '</a></dt>' .
+                '<dt><a href="' . Html::escapeURL(is_string($item->link) ? $item->link : '') . '" ' .
+                'title="' . Html::escapeHTML($overtitle) . '">' . Html::escapeHTML($title) . '</a></dt>' .
                 $description . $content;
 
                 $i++;
@@ -219,5 +219,31 @@ class Frontend
         });
 
         return true;
+    }
+
+    /**
+     * Get filters, without cut if length is 0 (no limit).
+     *
+     * @return  array<string, mixed>
+     */
+    private static function filters(bool $remove_html, int $length): array
+    {
+        $filters = ['remove_html' => (int) $remove_html];
+        if ($length > 0) {
+            $filters['cut_string'] = $length;
+        }
+
+        return $filters;
+    }
+
+    /**
+     * Get remote text, HTML is cleaned when kept.
+     */
+    private static function text(string $str, bool $remove_html, int $length): string
+    {
+        $str = App::frontend()->context()->global_filters($str, self::filters($remove_html, $length));
+
+        // Remote HTML is never trusted
+        return $remove_html ? $str : App::filter()->HTMLfilter($str, true);
     }
 }
