@@ -12,6 +12,8 @@ _fac_ is a plugin for the open-source web publishing software called [Dotclear](
 
 > Add options to the sidebar of post edition page to link en extenal feed to the bottom of an entry.
 
+A [user guide in French](https://github.com/JcDenis/fac/blob/master/docs/fr/utilisation.md) is available.
+
 ## REQUIREMENTS
 
 * Dotclear 2.39
@@ -37,6 +39,7 @@ This plugins also supports pages from plugin "muppet".
 
 ## LINKS
 
+* [User guide (in French)](https://github.com/JcDenis/fac/blob/master/docs/fr/utilisation.md)
 * [License](https://github.com/JcDenis/fac/blob/master/LICENSE)
 * [Packages & details](https://github.com/JcDenis/fac/releases) (or on [Repository](https://dotclear.org/plugin/detail/fac))
 * [Sources & contributions](https://github.com/JcDenis/fac)
